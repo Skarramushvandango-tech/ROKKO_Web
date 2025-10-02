@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import artistsData from "./data/mockData";
 
 import Header from "./components/Header";
@@ -6,55 +6,40 @@ import IntroVideo from "./components/IntroVideo";
 import WelcomeSection from "./components/WelcomeSection";
 import CurrentReleases from "./components/CurrentReleases";
 import ArtistPage from "./components/ArtistPage";
-import ContactForm from "./components/ContactForm";
-import CommentSection from "./components/CommentSection";
 import Footer from "./components/Footer";
 
-type Page = "home" | "releases" | "artist" | "contact" | "comments";
-type ArtistKey = string | null;
+/** Falls du später filtern willst – jetzt erst mal alles weiterreichen */
+function App() {
+  const [selectedArtist, setSelectedArtist] = useState<string | null>(null);
+  const artists = useMemo(() => artistsData, []);
 
-export default function App() {
-  const [page, setPage] = useState<Page>("home");
-  const [artistKey, setArtistKey] = useState<ArtistKey>(null);
-
-  function goHome() { setPage("home"); setArtistKey(null); }
-  function goReleases() { setPage("releases"); setArtistKey(null); }
-  function goContact() { setPage("contact"); setArtistKey(null); }
-  function goComments() { setPage("comments"); setArtistKey(null); }
-  function goArtist(key: string) { setArtistKey(key); setPage("artist"); }
+  const sel =
+    selectedArtist &&
+    artists.find((a) => a.name.toLowerCase() === selectedArtist.toLowerCase());
 
   return (
-    <div className="min-h-screen" style={{ background: "#262626", color: "#F5F3BB" }}>
+    <div className="min-h-screen flex flex-col text-white bg-black">
       <Header
-        onHome={goHome}
-        onReleases={goReleases}
-        onContact={goContact}
-        onComments={goComments}
-        onArtist={goArtist}
-        artists={artistsData as any}
+        artists={artists.map((a) => a.name)}
+        onSelectArtist={(name) => setSelectedArtist(name)}
+        onHome={() => setSelectedArtist(null)}
       />
 
-      <main>
-        {page === "home" && (
+      <main className="flex-1">
+        {!sel ? (
           <>
             <IntroVideo />
             <WelcomeSection />
-            <CurrentReleases />
+            <CurrentReleases artists={artists} onSelect={setSelectedArtist} />
           </>
+        ) : (
+          <ArtistPage artist={sel} onBack={() => setSelectedArtist(null)} />
         )}
-
-        {page === "releases" && <CurrentReleases />}
-
-        {page === "artist" && artistKey && (
-          <ArtistPage artistKey={artistKey} />
-        )}
-
-        {page === "contact" && <ContactForm />}
-
-        {page === "comments" && <CommentSection />}
       </main>
 
       <Footer />
     </div>
   );
 }
+
+export default App;
