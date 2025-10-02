@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Send, Mail } from 'lucide-react';
 
 const ContactForm: React.FC = () => {
