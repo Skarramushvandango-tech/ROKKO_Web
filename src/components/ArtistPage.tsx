@@ -1,4 +1,5 @@
-import { useMemo, useRef, useState } from "react";
+// src/components/ArtistPage.tsx
+import { useEffect, useMemo, useRef, useState } from "react";
 import artistsData from "../data/mockData";
 import { asset } from "../utils/asset";
 
@@ -10,7 +11,9 @@ type Props = { artistKey: string };
 
 function pauseAllExcept(current?: HTMLAudioElement | null) {
   const nodes = document.querySelectorAll<HTMLAudioElement>("audio");
-  nodes.forEach(a => { if (a !== current && !a.paused) a.pause(); });
+  nodes.forEach((a) => {
+    if (a !== current && !a.paused) a.pause();
+  });
 }
 
 function slugify(name: string) {
@@ -19,23 +22,70 @@ function slugify(name: string) {
 
 export default function ArtistPage({ artistKey }: Props) {
   const artists = artistsData as unknown as Artist[];
-  const artist = useMemo(() => artists.find(a => slugify(a.name) === artistKey) || null, [artists, artistKey]);
+  const artist = useMemo(
+    () => artists.find((a) => slugify(a.name) === artistKey) || null,
+    [artists, artistKey]
+  );
 
   const [openRelease, setOpenRelease] = useState<string | null>(null);
   const playerRefs = useRef<Record<string, HTMLAudioElement | null>>({});
+  const [bioHTML, setBioHTML] = useState<string>("");
 
-  if (!artist) return <div style={{ maxWidth: 1000, margin: "0 auto", padding: "40px 16px" }}>Artist nicht gefunden.</div>;
+  // Bio aus /data/bios.html laden (vollständig auf Detailseite)
+  useEffect(() => {
+    if (!artist) return;
+    const slug = slugify(artist.name);
+    fetch(asset("/data/bios.html"))
+      .then((r) => r.text())
+      .then((html) => {
+        const doc = new DOMParser().parseFromString(html, "text/html");
+        const byId = doc.getElementById(slug);
+        const byData = doc.querySelector(`[data-artist="${slug}"]`);
+        const candidate = byId || byData || doc.body;
+        setBioHTML(candidate.innerHTML || "");
+      })
+      .catch(() => setBioHTML(""));
+  }, [artist]);
+
+  if (!artist)
+    return (
+      <div style={{ maxWidth: 1000, margin: "0 auto", padding: "40px 16px" }}>
+        Artist nicht gefunden.
+      </div>
+    );
 
   const releases = Object.entries(artist.releases);
 
   return (
     <section style={{ maxWidth: 1200, margin: "0 auto", padding: "40px 16px" }}>
       <header style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 24 }}>
-        <img src={asset(artist.image)} alt={artist.name} style={{ width: 64, height: 64, borderRadius: 8, objectFit: "cover" }} />
+        <img
+          src={asset(artist.image)}
+          alt={artist.name}
+          style={{ width: 64, height: 64, borderRadius: 8, objectFit: "cover" }}
+        />
         <h2 style={{ fontSize: 24, fontWeight: 700 }}>{artist.name}</h2>
       </header>
 
-      <div style={{ display: "grid", gap: 24, gridTemplateColumns: "repeat(2,1fr)" }}>
+      {/* Vollständige Bio */}
+      {bioHTML && (
+        <article
+          style={{
+            marginBottom: 32,
+            lineHeight: 1.6,
+            fontSize: 16,
+          }}
+          dangerouslySetInnerHTML={{ __html: bioHTML }}
+        />
+      )}
+
+      <div
+        style={{
+          display: "grid",
+          gap: 24,
+          gridTemplateColumns: "repeat(2,1fr)",
+        }}
+      >
         {releases.map(([name, rel]) => {
           const isOpen = openRelease === name;
           return (
@@ -46,9 +96,26 @@ export default function ArtistPage({ artistKey }: Props) {
                 aria-expanded={isOpen}
                 aria-controls={`rel-${name}`}
                 title={`${artist.name} – ${name}`}
-                style={{ display: "block", width: "100%", textAlign: "left", background: "transparent", border: "none", color: "inherit", cursor: "pointer" }}
+                style={{
+                  display: "block",
+                  width: "100%",
+                  textAlign: "left",
+                  background: "transparent",
+                  border: "none",
+                  color: "inherit",
+                  cursor: "pointer",
+                }}
               >
-                <div style={{ aspectRatio: "1/1", width: "100%", overflow: "hidden", borderRadius: 8, border: "1px solid rgba(255,255,255,0.1)", background: "rgba(0,0,0,0.2)" }}>
+                <div
+                  style={{
+                    aspectRatio: "1/1",
+                    width: "100%",
+                    overflow: "hidden",
+                    borderRadius: 8,
+                    border: "1px solid rgba(255,255,255,0.1)",
+                    background: "rgba(0,0,0,0.2)",
+                  }}
+                >
                   <img
                     src={asset(rel.thumbnail)}
                     alt={`${artist.name} – ${name} (Thumbnail)`}
@@ -62,19 +129,40 @@ export default function ArtistPage({ artistKey }: Props) {
               </button>
 
               {isOpen && (
-                <div id={`rel-${name}`} style={{ marginTop: 12, border: "1px solid rgba(255,255,255,0.15)", background: "#1f1f1f", borderRadius: 8, padding: 12 }}>
-                  <img src={asset(rel.cover)} alt={`${artist.name} – ${name} (Cover groß)`} style={{ width: "100%", height: "auto", borderRadius: 6 }} />
+                <div
+                  id={`rel-${name}`}
+                  style={{
+                    marginTop: 12,
+                    border: "1px solid rgba(255,255,255,0.15)",
+                    background: "#1f1f1f",
+                    borderRadius: 8,
+                    padding: 12,
+                  }}
+                >
+                  <img
+                    src={asset(rel.cover)}
+                    alt={`${artist.name} – ${name} (Cover groß)`}
+                    style={{ width: "100%", height: "auto", borderRadius: 6 }}
+                  />
                   <div style={{ marginTop: 12 }}>
                     {rel.tracks.map((t, i) => {
                       const key = `${name}-${i}`;
                       const file = asset(t.file);
                       return (
-                        <div key={key} style={{ background: "rgba(0,0,0,0.2)", padding: 8, borderRadius: 6, marginBottom: 8 }}>
+                        <div
+                          key={key}
+                          style={{
+                            background: "rgba(0,0,0,0.2)",
+                            padding: 8,
+                            borderRadius: 6,
+                            marginBottom: 8,
+                          }}
+                        >
                           <div style={{ fontSize: 14, marginBottom: 6 }}>{t.title}</div>
                           <audio
                             controls
                             preload="none"
-                            ref={el => (playerRefs.current[key] = el)}
+                            ref={(el) => (playerRefs.current[key] = el)}
                             onPlay={() => pauseAllExcept(playerRefs.current[key])}
                             style={{ width: "100%" }}
                           >
