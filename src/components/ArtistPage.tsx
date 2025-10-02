@@ -1,4 +1,3 @@
-// src/components/ArtistPage.tsx
 import { useMemo, useRef, useState } from "react";
 import artistsData from "../data/mockData";
 import { asset } from "../utils/asset";
@@ -25,59 +24,59 @@ export default function ArtistPage({ artistKey }: Props) {
   const [openRelease, setOpenRelease] = useState<string | null>(null);
   const playerRefs = useRef<Record<string, HTMLAudioElement | null>>({});
 
-  if (!artist) return <div className="mx-auto max-w-4xl px-4 py-10">Artist nicht gefunden.</div>;
+  if (!artist) return <div style={{ maxWidth: 1000, margin: "0 auto", padding: "40px 16px" }}>Artist nicht gefunden.</div>;
 
   const releases = Object.entries(artist.releases);
 
   return (
-    <section className="mx-auto max-w-6xl px-4 py-10">
-      <header className="flex items-center gap-4 mb-6">
-        <img src={asset(artist.image)} alt={artist.name} className="w-16 h-16 rounded object-cover" />
-        <h2 className="text-2xl font-bold">{artist.name}</h2>
+    <section style={{ maxWidth: 1200, margin: "0 auto", padding: "40px 16px" }}>
+      <header style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 24 }}>
+        <img src={asset(artist.image)} alt={artist.name} style={{ width: 64, height: 64, borderRadius: 8, objectFit: "cover" }} />
+        <h2 style={{ fontSize: 24, fontWeight: 700 }}>{artist.name}</h2>
       </header>
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
+      <div style={{ display: "grid", gap: 24, gridTemplateColumns: "repeat(2,1fr)" }}>
         {releases.map(([name, rel]) => {
           const isOpen = openRelease === name;
           return (
             <div key={name}>
               <button
                 type="button"
-                className="group block w-full text-left"
                 onClick={() => setOpenRelease(isOpen ? null : name)}
                 aria-expanded={isOpen}
                 aria-controls={`rel-${name}`}
                 title={`${artist.name} – ${name}`}
+                style={{ display: "block", width: "100%", textAlign: "left", background: "transparent", border: "none", color: "inherit", cursor: "pointer" }}
               >
-                <div className="aspect-square w-full overflow-hidden rounded-md border border-white/10 bg-black/20">
+                <div style={{ aspectRatio: "1/1", width: "100%", overflow: "hidden", borderRadius: 8, border: "1px solid rgba(255,255,255,0.1)", background: "rgba(0,0,0,0.2)" }}>
                   <img
                     src={asset(rel.thumbnail)}
                     alt={`${artist.name} – ${name} (Thumbnail)`}
                     loading="lazy"
-                    className="h-full w-full object-cover group-hover:scale-[1.02] transition-transform"
+                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
                   />
                 </div>
-                <div className="mt-2">
-                  <p className="text-sm font-semibold">{name}</p>
+                <div style={{ marginTop: 8 }}>
+                  <div style={{ fontSize: 14, fontWeight: 600 }}>{name}</div>
                 </div>
               </button>
 
               {isOpen && (
-                <div id={`rel-${name}`} className="mt-3 rounded-md border border-white/15 bg-[#1f1f1f] p-3">
-                  <img src={asset(rel.cover)} alt={`${artist.name} – ${name} (Cover groß)`} className="w-full h-auto rounded" />
-                  <div className="mt-3 space-y-3">
+                <div id={`rel-${name}`} style={{ marginTop: 12, border: "1px solid rgba(255,255,255,0.15)", background: "#1f1f1f", borderRadius: 8, padding: 12 }}>
+                  <img src={asset(rel.cover)} alt={`${artist.name} – ${name} (Cover groß)`} style={{ width: "100%", height: "auto", borderRadius: 6 }} />
+                  <div style={{ marginTop: 12 }}>
                     {rel.tracks.map((t, i) => {
                       const key = `${name}-${i}`;
                       const file = asset(t.file);
                       return (
-                        <div key={key} className="rounded bg-black/20 p-2">
-                          <div className="text-sm mb-1">{t.title}</div>
+                        <div key={key} style={{ background: "rgba(0,0,0,0.2)", padding: 8, borderRadius: 6, marginBottom: 8 }}>
+                          <div style={{ fontSize: 14, marginBottom: 6 }}>{t.title}</div>
                           <audio
                             controls
                             preload="none"
                             ref={el => (playerRefs.current[key] = el)}
                             onPlay={() => pauseAllExcept(playerRefs.current[key])}
-                            className="w-full"
+                            style={{ width: "100%" }}
                           >
                             <source src={file} type="audio/mp4" />
                             <source src={file} type="audio/aac" />
