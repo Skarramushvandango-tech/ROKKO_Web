@@ -1,4 +1,3 @@
-// src/App.tsx
 import { useState } from "react";
 import artistsData from "./data/mockData";
 
@@ -25,17 +24,17 @@ export default function App() {
   function goArtist(key: string) { setArtistKey(key); setPage("artist"); }
 
   return (
-    <div className="min-h-screen bg-[#262626] text-[#F5F3BB]">
+    <div className="min-h-screen" style={{ background: "#262626", color: "#F5F3BB" }}>
       <Header
         onHome={goHome}
         onReleases={goReleases}
         onContact={goContact}
         onComments={goComments}
         onArtist={goArtist}
-        artists={artistsData}
+        artists={artistsData as any}
       />
 
-      <main className="relative">
+      <main>
         {page === "home" && (
           <>
             <IntroVideo />
