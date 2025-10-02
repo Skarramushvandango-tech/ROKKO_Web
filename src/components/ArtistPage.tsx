@@ -1,11 +1,15 @@
 // src/components/ArtistPage.tsx
 import { useEffect, useMemo, useRef, useState } from "react";
-import data from "../data/artists.json";
 import { asset } from "../utils/asset";
 
 type Track = { file: string; title: string };
-type Release = { name: string; cover: string; thumbnail?: string; picture?: string; tracks: Track[] };
-type Artist = { name: string; image: string; releases: Release[] };
+type Release = { cover: string; thumbnail: string; picture: string; tracks: Track[] };
+type Artist = { name: string; image: string; releases: { [key: string]: Release } };
+
+type Props = {
+  allArtists: Artist[];
+  artistKey: string;
+};
 
 function pauseAllExcept(current?: HTMLAudioElement | null) {
   const nodes = document.querySelectorAll<HTMLAudioElement>("audio");
@@ -13,11 +17,10 @@ function pauseAllExcept(current?: HTMLAudioElement | null) {
 }
 const slugify = (s: string) => s.toLowerCase().replace(/\s+/g, "").replace(/[^\w-]/g, "");
 
-export default function ArtistPage({ artistSlug }: { artistSlug: string }) {
-  const artists: Artist[] = ((data as any).items || []) as Artist[];
+export default function ArtistPage({ allArtists, artistKey }: Props) {
   const artist = useMemo(
-    () => artists.find((a) => slugify(a.name) === artistSlug) || null,
-    [artists, artistSlug]
+    () => allArtists.find((a) => slugify(a.name) === artistKey) || null,
+    [allArtists, artistKey]
   );
 
   const [open, setOpen] = useState<string | null>(null);
@@ -65,37 +68,37 @@ export default function ArtistPage({ artistSlug }: { artistSlug: string }) {
       )}
 
       <div className="grid gap-6 sm:grid-cols-2">
-        {(artist.releases || []).map((rel) => {
-          const isOpen = open === rel.name;
+        {Object.entries(artist.releases || {}).map(([relName, rel]) => {
+          const isOpen = open === relName;
           return (
-            <article key={rel.name} className="rounded border border-white/10 bg-black/20 p-3">
+            <article key={relName} className="rounded border border-white/10 bg-black/20 p-3">
               <button
-                onClick={() => setOpen(isOpen ? null : rel.name)}
+                onClick={() => setOpen(isOpen ? null : relName)}
                 className="w-full text-left"
                 aria-expanded={isOpen}
-                title={`${artist.name} – ${rel.name}`}
+                title={`${artist.name} – ${relName}`}
               >
                 <div className="aspect-square overflow-hidden rounded-md border border-white/10 bg-black/20">
                   <img
                     src={asset(rel.thumbnail || rel.cover)}
-                    alt={`${artist.name} – ${rel.name} (Thumbnail)`}
+                    alt={`${artist.name} – ${relName} (Thumbnail)`}
                     className="h-full w-full object-cover"
                     loading="lazy"
                   />
                 </div>
-                <div className="mt-2 text-sm font-semibold">{rel.name}</div>
+                <div className="mt-2 text-sm font-semibold">{relName}</div>
               </button>
 
               {isOpen && (
                 <div className="mt-3 rounded-md border border-white/10 bg-black/30 p-3">
                   <img
                     src={asset(rel.cover)}
-                    alt={`${artist.name} – ${rel.name} (Cover)`}
+                    alt={`${artist.name} – ${relName} (Cover)`}
                     className="w-full h-auto rounded"
                   />
                   <ul className="mt-3 space-y-2">
                     {rel.tracks.map((t, i) => {
-                      const k = `${rel.name}-t${i}`;
+                      const k = `${relName}-t${i}`;
                       const file = asset(t.file);
                       return (
                         <li key={k} className="rounded bg-black/30 p-2">
