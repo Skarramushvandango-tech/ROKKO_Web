@@ -1,0 +1,35 @@
+// src/data/artists.json
+{
+  "items": [
+    {
+      "name": "Henri Bellieu",
+      "image": "/images/uploads/henri.png",
+      "bio": "Henri Bellieu – schon sein Name klingt wie ein altes Chanson...",
+      "releases": [
+        {
+          "name": "Petit Colibri",
+          "cover": "/images/uploads/petit_colibri_cover.png",
+          "thumbnail": "/images/uploads/petit_colibri_thumb.png",
+          "tracks": [
+            { "title": "Petit Colibri (Main)", "file": "/images/uploads/petit_colibri_main.m4a" },
+            { "title": "Petit Colibri (Nocturne Mix)", "file": "/images/uploads/petit_colibri_nocturne.m4a" }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Neuer Artist",
+      "image": "/images/uploads/neuer_artist.png",
+      "bio": "Hier kommt ein komplett neuer Artist.",
+      "releases": [
+        {
+          "name": "Mein Erstes Release",
+          "cover": "/images/uploads/meinrelease_cover.png",
+          "tracks": [
+            { "title": "Song A", "file": "/images/uploads/song_a.m4a" }
+          ]
+        }
+      ]
+    }
+  ]
+}
