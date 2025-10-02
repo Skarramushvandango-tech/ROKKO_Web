@@ -1,28 +1,35 @@
-// Wir erwarten dieselben Typen wie in src/data/mockData.ts
-type Track = { file: string; title: string };
-type Release = { cover: string; picture: string; tracks: Track[] };
-type Artist = { name: string; image: string; releases: Record<string, Release> };
+// src/components/CurrentReleases.tsx
+import React from "react";
+import artistsData from "../data/mockData";
 
-type Props = {
-  artists: Artist[];
-  onSelect: (artistName: string) => void;
-};
-
-const toMini = (p: string) =>
-  p.endsWith(".png") ? p.replace(".png", "_mini.png") : p;
-
-export default function CurrentReleases({ artists, onSelect }: Props) {
-  // flache Liste aus allen Releases bilden
-  const items = artists.flatMap((artist) =>
-    Object.entries(artist.releases || {}).map(([key, rel]) => ({
-      key: `${artist.name}-${key}`,
-      artist: artist.name,
-      cover: rel.cover,
-      mini: toMini(rel.cover),
-      title: key,
-    }))
-  );
-
+const CurrentReleases: React.FC = () => {
   return (
     <section className="mx-auto max-w-5xl px-4 py-6">
-      <h2 className="text-xl font
+      <h2 className="text-xl font-bold mb-4">Current Releases</h2>
+
+      {Object.values(artistsData).map((artist) => (
+        <div key={artist.name} className="mb-8">
+          <h3 className="text-lg font-semibold">{artist.name}</h3>
+          {Object.values(artist.releases).map((release) => (
+            <div key={release.cover} className="mt-2">
+              <img
+                src={release.cover}
+                alt={`${artist.name} - ${release.cover}`}
+                className="w-40 h-40 object-cover"
+              />
+              <ul className="mt-2">
+                {release.tracks.map((track) => (
+                  <li key={track.file} className="text-sm">
+                    {track.title}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+      ))}
+    </section>
+  );
+};
+
+export default CurrentReleases;
