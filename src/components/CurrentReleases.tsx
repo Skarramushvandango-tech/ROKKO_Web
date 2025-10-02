@@ -1,145 +1,149 @@
-import React, { useState } from 'react';
-import { ExternalLink, Download, Headphones } from 'lucide-react';
+// src/components/CurrentReleases.tsx
+import React, { useMemo, useState, useEffect, useRef } from "react";
+import artistsData from "../data/mockData";
 
-interface Release {
-  id: string;
-  title: string;
-  artist: string;
-  cover: string;
-  type: 'single' | 'album';
-  streamingLinks: { platform: string; url: string }[];
-  downloadLinks: { platform: string; url: string }[];
+// Datentypen ableiten
+type Track = { file: string; title: string };
+type Release = { cover: string; thumbnail: string; picture: string; tracks: Track[] };
+type Artist = { name: string; image: string; releases: Record<string, Release> };
+
+// Hilfstyp für aufgeklapptes Item
+type OpenKey = null | { artistIdx: number; releaseName: string };
+
+// Alle <audio>-Elemente global stoppen, wenn eins startet
+function pauseAllOthers(current?: HTMLAudioElement | null) {
+  const nodes = document.querySelectorAll<HTMLAudioElement>("audio");
+  nodes.forEach(a => {
+    if (a !== current && !a.paused) a.pause();
+  });
 }
 
-interface CurrentReleasesProps {
-  releases: Release[];
-}
+export default function CurrentReleases() {
+  // artistsData ist default-export aus mockData.ts (Artist[])
+  const artists = artistsData as unknown as Artist[];
 
-const CurrentReleases: React.FC<CurrentReleasesProps> = ({ releases }) => {
-  const [selectedRelease, setSelectedRelease] = useState<string | null>(null);
-  const [selectedOption, setSelectedOption] = useState<'streaming' | 'download' | null>(null);
+  // Flache Liste aller Releases für das Grid
+  const releaseList = useMemo(() => {
+    const list: Array<{
+      artistIdx: number;
+      artistName: string;
+      artistImage: string;
+      releaseName: string;
+      release: Release;
+    }> = [];
+    artists.forEach((artist, artistIdx) => {
+      Object.entries(artist.releases).forEach(([releaseName, release]) => {
+        list.push({ artistIdx, artistName: artist.name, artistImage: artist.image, releaseName, release });
+      });
+    });
+    // Du kannst hier sortieren, wenn „aktuellste zuerst“ gewünscht ist.
+    return list;
+  }, [artists]);
 
-  const handleReleaseClick = (releaseId: string) => {
-    if (selectedRelease === releaseId) {
-      setSelectedRelease(null);
-      setSelectedOption(null);
-    } else {
-      setSelectedRelease(releaseId);
-      setSelectedOption(null);
-    }
-  };
+  const [open, setOpen] = useState<OpenKey>(null);
 
-  const handleOptionSelect = (option: 'streaming' | 'download') => {
-    setSelectedOption(option);
-  };
+  // Refs für die Player im offenen Panel
+  const playerRefs = useRef<Record<string, HTMLAudioElement | null>>({});
 
-  const selectedReleaseData = releases.find(r => r.id === selectedRelease);
+  // Beim Öffnen Panel alle Player stoppen
+  useEffect(() => {
+    pauseAllOthers(null);
+  }, [open]);
+
+  function onPlay(key: string) {
+    const current = playerRefs.current[key] ?? null;
+    pauseAllOthers(current);
+  }
+
+  function toggleOpen(next: OpenKey) {
+    setOpen(prev =>
+      prev &&
+      next &&
+      prev.artistIdx === next.artistIdx &&
+      prev.releaseName === next.releaseName
+        ? null
+        : next
+    );
+  }
 
   return (
-    <section className="py-16 md:py-24 bg-[#262626]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h2 className="text-3xl md:text-4xl font-bold text-[#F5F3BB] text-center mb-12">
-          Current Releases
-        </h2>
+    <section className="mx-auto max-w-6xl px-4 py-10">
+      <h2 className="text-2xl font-bold mb-6">Aktuelle Releases</h2>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 md:gap-8 mb-8">
-          {releases.map((release) => (
-            <div key={release.id} className="group cursor-pointer">
-              <div 
-                className="aspect-square overflow-hidden rounded-lg shadow-lg transition-all duration-300 group-hover:scale-105 group-hover:shadow-2xl"
-                onClick={() => handleReleaseClick(release.id)}
+      {/* Grid: nur Mini-Cover + Texte */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
+        {releaseList.map(({ artistIdx, artistName, releaseName, release }) => {
+          const isOpen =
+            open &&
+            open.artistIdx === artistIdx &&
+            open.releaseName === releaseName;
+
+          return (
+            <div key={`${artistIdx}-${releaseName}`} className="relative">
+              <button
+                type="button"
+                className="group block w-full text-left focus:outline-none"
+                onClick={() => toggleOpen({ artistIdx, releaseName })}
+                aria-expanded={Boolean(isOpen)}
+                aria-controls={`panel-${artistIdx}-${releaseName}`}
+                title={`${artistName} – ${releaseName}`}
               >
-                <img
-                  src={release.cover}
-                  alt={`${release.title} by ${release.artist}`}
-                  className="w-full h-full object-cover transition-all duration-300 group-hover:brightness-110"
-                />
-              </div>
-              <div className="mt-4 text-center">
-                <h3 className="font-semibold text-[#F5F3BB] text-sm md:text-base">
-                  {release.title}
-                </h3>
-                <p className="text-[#96897B] text-xs md:text-sm mt-1">
-                  {release.artist}
-                </p>
-                <span className="inline-block mt-2 px-2 py-1 bg-[#483D03] text-[#F5F3BB] text-xs rounded-full">
-                  {release.type}
-                </span>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Selection Interface */}
-        {selectedRelease && (
-          <div className="bg-[#483D03]/20 rounded-lg p-6 md:p-8 border border-[#483D03]">
-            <div className="text-center mb-6">
-              <h3 className="text-xl md:text-2xl font-bold text-[#F5F3BB] mb-2">
-                {selectedReleaseData?.title}
-              </h3>
-              <p className="text-[#96897B]">by {selectedReleaseData?.artist}</p>
-            </div>
-
-            {!selectedOption ? (
-              <div className="flex flex-col sm:flex-row gap-4 justify-center max-w-md mx-auto">
-                <button
-                  onClick={() => handleOptionSelect('streaming')}
-                  className="flex items-center justify-center gap-2 bg-[#483D03] hover:bg-[#483D03]/80 text-[#F5F3BB] px-6 py-3 rounded-lg transition-all duration-200 font-medium"
-                >
-                  <Headphones size={20} />
-                  Streaming
-                </button>
-                <button
-                  onClick={() => handleOptionSelect('download')}
-                  className="flex items-center justify-center gap-2 bg-[#96897B] hover:bg-[#96897B]/80 text-[#262626] px-6 py-3 rounded-lg transition-all duration-200 font-medium"
-                >
-                  <Download size={20} />
-                  Download
-                </button>
-              </div>
-            ) : (
-              <div>
-                <div className="flex items-center justify-between mb-4">
-                  <h4 className="text-lg font-semibold text-[#F5F3BB] capitalize">
-                    {selectedOption} Platforms
-                  </h4>
-                  <button
-                    onClick={() => setSelectedOption(null)}
-                    className="text-[#96897B] hover:text-[#F5F3BB] text-sm transition-colors"
-                  >
-                    ← Back
-                  </button>
+                <div className="aspect-square w-full overflow-hidden rounded-md border border-white/10 bg-black/20">
+                  <img
+                    src={release.thumbnail}
+                    alt={`${artistName} – ${releaseName} (Thumbnail)`}
+                    loading="lazy"
+                    className="h-full w-full object-cover transition-transform group-hover:scale-[1.02]"
+                  />
                 </div>
-                
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {(selectedOption === 'streaming' 
-                    ? selectedReleaseData?.streamingLinks 
-                    : selectedReleaseData?.downloadLinks
-                  )?.map((link, index) => (
-                    <a
-                      key={index}
-                      href={link.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center justify-between p-3 bg-[#262626] hover:bg-[#483D03] rounded-lg transition-all duration-200 group"
-                    >
-                      <span className="text-[#F5F3BB] font-medium">
-                        {link.platform}
-                      </span>
-                      <ExternalLink 
-                        size={16} 
-                        className="text-[#96897B] group-hover:text-[#F5F3BB] transition-colors" 
-                      />
-                    </a>
-                  ))}
+                <div className="mt-2">
+                  <p className="text-sm font-semibold">{artistName}</p>
+                  <p className="text-xs opacity-70">{releaseName}</p>
                 </div>
-              </div>
-            )}
-          </div>
-        )}
+              </button>
+
+              {/* Dropdown-Panel: großes Cover + Player je Track */}
+              {isOpen && (
+                <div
+                  id={`panel-${artistIdx}-${releaseName}`}
+                  className="mt-3 rounded-md border border-white/15 bg-[#1f1f1f] p-3"
+                >
+                  <div className="w-full overflow-hidden rounded">
+                    <img
+                      src={release.cover}
+                      alt={`${artistName} – ${releaseName} (Cover groß)`}
+                      className="w-full h-auto object-cover"
+                    />
+                  </div>
+
+                  <div className="mt-3 space-y-3">
+                    {release.tracks.map((t, idx) => {
+                      const key = `${artistIdx}-${releaseName}-${idx}`;
+                      return (
+                        <div key={key} className="rounded bg-black/20 p-2">
+                          {/* Nur Songtitel – kein Artistname, wie gewünscht */}
+                          <div className="text-sm mb-1">{t.title}</div>
+                          <audio
+                            controls
+                            preload="none"
+                            ref={el => (playerRefs.current[key] = el)}
+                            onPlay={() => onPlay(key)}
+                            className="w-full"
+                          >
+                            <source src={t.file} type="audio/mp4" />
+                            <source src={t.file} type="audio/aac" />
+                            Dein Browser unterstützt das Audioformat nicht.
+                          </audio>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+        })}
       </div>
     </section>
   );
-};
-
-export default CurrentReleases;
+}
