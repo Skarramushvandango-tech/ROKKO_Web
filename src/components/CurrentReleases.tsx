@@ -1,4 +1,3 @@
-// src/components/CurrentReleases.tsx
 import { useMemo, useState, useEffect, useRef } from "react";
 import artistsData from "../data/mockData";
 import { asset } from "../utils/asset";
@@ -17,13 +16,7 @@ export default function CurrentReleases() {
   const artists = artistsData as unknown as Artist[];
 
   const releaseList = useMemo(() => {
-    const list: Array<{
-      artistIdx: number;
-      artistName: string;
-      artistImage: string;
-      releaseName: string;
-      release: Release;
-    }> = [];
+    const list: Array<{ artistIdx: number; artistName: string; artistImage: string; releaseName: string; release: Release; }> = [];
     artists.forEach((artist, artistIdx) => {
       Object.entries(artist.releases).forEach(([releaseName, release]) => {
         list.push({ artistIdx, artistName: artist.name, artistImage: artist.image, releaseName, release });
@@ -49,60 +42,63 @@ export default function CurrentReleases() {
   }
 
   return (
-    <section className="mx-auto max-w-6xl px-4 py-10">
-      <h2 className="text-2xl font-bold mb-6">Aktuelle Releases</h2>
+    <section style={{ maxWidth: 1200, margin: "0 auto", padding: "40px 16px" }}>
+      <h2 style={{ fontSize: 24, fontWeight: 700, marginBottom: 16 }}>Aktuelle Releases</h2>
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
+      <div style={{
+        display: "grid", gap: 24,
+        gridTemplateColumns: "repeat(2,1fr)"
+      }}>
         {releaseList.map(({ artistIdx, artistName, releaseName, release }) => {
           const isOpen = open && open.artistIdx === artistIdx && open.releaseName === releaseName;
 
           return (
-            <div key={`${artistIdx}-${releaseName}`} className="relative">
+            <div key={`${artistIdx}-${releaseName}`} style={{ position: "relative" }}>
               <button
                 type="button"
-                className="group block w-full text-left focus:outline-none"
                 onClick={() => toggleOpen({ artistIdx, releaseName })}
                 aria-expanded={Boolean(isOpen)}
                 aria-controls={`panel-${artistIdx}-${releaseName}`}
                 title={`${artistName} – ${releaseName}`}
+                style={{ display: "block", width: "100%", textAlign: "left", background: "transparent", border: "none", color: "inherit", cursor: "pointer" }}
               >
-                <div className="aspect-square w-full overflow-hidden rounded-md border border-white/10 bg-black/20">
+                <div style={{ aspectRatio: "1/1", width: "100%", overflow: "hidden", borderRadius: 8, border: "1px solid rgba(255,255,255,0.1)", background: "rgba(0,0,0,0.2)" }}>
                   <img
                     src={asset(release.thumbnail)}
                     alt={`${artistName} – ${releaseName} (Thumbnail)`}
                     loading="lazy"
-                    className="h-full w-full object-cover transition-transform group-hover:scale-[1.02]"
+                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
                   />
                 </div>
-                <div className="mt-2">
-                  <p className="text-sm font-semibold">{artistName}</p>
-                  <p className="text-xs opacity-70">{releaseName}</p>
+                <div style={{ marginTop: 8 }}>
+                  <div style={{ fontSize: 14, fontWeight: 600 }}>{artistName}</div>
+                  <div style={{ fontSize: 12, opacity: 0.7 }}>{releaseName}</div>
                 </div>
               </button>
 
               {isOpen && (
-                <div id={`panel-${artistIdx}-${releaseName}`} className="mt-3 rounded-md border border-white/15 bg-[#1f1f1f] p-3">
-                  <div className="w-full overflow-hidden rounded">
+                <div id={`panel-${artistIdx}-${releaseName}`} style={{ marginTop: 12, border: "1px solid rgba(255,255,255,0.15)", background: "#1f1f1f", borderRadius: 8, padding: 12 }}>
+                  <div style={{ width: "100%", overflow: "hidden", borderRadius: 6 }}>
                     <img
                       src={asset(release.cover)}
                       alt={`${artistName} – ${releaseName} (Cover groß)`}
-                      className="w-full h-auto rounded-md"
+                      style={{ width: "100%", height: "auto", display: "block" }}
                     />
                   </div>
 
-                  <div className="mt-3 space-y-3">
+                  <div style={{ marginTop: 12 }}>
                     {release.tracks.map((t, idx) => {
                       const key = `${artistIdx}-${releaseName}-${idx}`;
                       const file = asset(t.file);
                       return (
-                        <div key={key} className="rounded bg-black/20 p-2">
-                          <div className="text-sm mb-1">{t.title}</div>
+                        <div key={key} style={{ background: "rgba(0,0,0,0.2)", padding: 8, borderRadius: 6, marginBottom: 8 }}>
+                          <div style={{ fontSize: 14, marginBottom: 6 }}>{t.title}</div>
                           <audio
                             controls
                             preload="none"
                             ref={el => (playerRefs.current[key] = el)}
                             onPlay={() => onPlay(key)}
-                            className="w-full"
+                            style={{ width: "100%" }}
                           >
                             <source src={file} type="audio/mp4" />
                             <source src={file} type="audio/aac" />
