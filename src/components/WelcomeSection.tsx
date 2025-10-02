@@ -1,16 +1,8 @@
-import React from 'react';
-
-const WelcomeSection: React.FC = () => {
+export default function WelcomeSection() {
   return (
-    <section className="py-16 md:py-24">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <h2 className="text-3xl md:text-5xl font-bold text-[#F5F3BB] leading-tight">
-          We are Rokko! And you are not yet
-        </h2>
-        <div className="mt-8 w-24 h-1 bg-gradient-to-r from-[#483D03] to-[#96897B] mx-auto rounded-full" />
-      </div>
+    <section style={{ maxWidth: 1200, margin: "0 auto", padding: "24px 16px" }}>
+      <h1 style={{ fontSize: 28, fontWeight: 800, marginBottom: 8 }}>Wir sind Rokko! Und du noch nicht</h1>
+      <p style={{ opacity: 0.9 }}>Willkommen bei ROKKO! Records.</p>
     </section>
   );
-};
-
-export default WelcomeSection;
+}
