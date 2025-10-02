@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import Header from './components/Header';
+import Bios from './components/Bios';
 import IntroVideo from './components/IntroVideo';
 import WelcomeSection from './components/WelcomeSection';
 import CurrentReleases from './components/CurrentReleases';
@@ -29,15 +30,17 @@ function App() {
         return <ContactForm />;
       case 'comments':
         return <CommentSection />;
-      case 'artist':
+      case 'artist': {
         const artist = mockArtists.find(a => a.id === selectedArtist);
         return artist ? <ArtistPage artist={artist} /> : <div>Artist not found</div>;
+      }
       default:
         return (
           <>
             <IntroVideo />
             <WelcomeSection />
             <CurrentReleases releases={mockReleases} />
+            <Bios /> {/* Bios-Liste unter den Releases */}
           </>
         );
     }
@@ -46,8 +49,8 @@ function App() {
   return (
     <AudioProvider>
       <div className="min-h-screen bg-[#262626] text-[#F5F3BB]">
-        <Header 
-          onNavigate={setActivePage} 
+        <Header
+          onNavigate={setActivePage}
           onArtistSelect={handleArtistSelect}
           artists={mockArtists}
           activePage={activePage}
