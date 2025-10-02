@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { MessageCircle, User, Clock, Mail } from 'lucide-react';
 
 interface Comment {
