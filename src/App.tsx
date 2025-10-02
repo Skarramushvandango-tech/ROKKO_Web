@@ -1,5 +1,5 @@
 // src/App.tsx
-import React, { useState } from "react";
+import { useState } from "react";
 import artistsData from "./data/mockData";
 
 import Header from "./components/Header";
