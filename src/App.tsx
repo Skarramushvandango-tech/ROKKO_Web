@@ -27,12 +27,9 @@ export default function App() {
   return (
     <div style={{ minHeight: "100vh", background: bg, color: fg, display: "flex", flexDirection: "column" }}>
       <Header
-        artists={artists.map(a => a.name)}
-        onGoHome={() => { setPage("home"); setArtistKey(null); }}
-        onGoReleases={() => { setPage("releases"); setArtistKey(null); }}
-        onGoContact={() => { setPage("contact"); setArtistKey(null); }}
-        onGoComments={() => { setPage("comments"); setArtistKey(null); }}
-        onPickArtist={(key) => { setArtistKey(key); setPage("artist"); }}
+        artists={artists.map(a => ({ name: a.name, slug: slugify(a.name) }))}
+        onHome={() => { setPage("home"); setArtistKey(null); }}
+        onSelectArtist={(slug) => { setArtistKey(slug); setPage("artist"); }}
       />
 
       <main style={{ flex: 1 }}>
