@@ -1,0 +1,43 @@
+backend:
+  name: git-gateway
+  branch: main
+
+media_folder: "public/uploads"
+public_folder: "/uploads"
+
+collections:
+  - name: "artists"
+    label: "Artists"
+    folder: "content/artists"
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - { name: "name", label: "Name", widget: "string" }
+      - { name: "id", label: "ID (slug, klein, ohne Leerzeichen)", widget: "string" }
+      - { name: "picture", label: "Artist-Bild", widget: "image", media_folder: "public/images/pictures", public_folder: "/images/pictures" }
+      - label: "Releases"
+        name: "releases"
+        widget: "list"
+        fields:
+          - { name: "id", label: "Release-ID (slug)", widget: "string" }
+          - { name: "title", label: "Titel", widget: "string" }
+          - { name: "cover", label: "Cover groß", widget: "image", media_folder: "public/images/cover", public_folder: "/images/cover" }
+          - { name: "coverMini", label: "Cover Mini", widget: "image", required: false, media_folder: "public/images/cover", public_folder: "/images/cover" }
+          - label: "Tracks"
+            name: "audio"
+            widget: "list"
+            fields:
+              - { name: "file",  label: "Audio-Datei", widget: "file", media_folder: "public/audio", public_folder: "/audio" }
+              - { name: "label", label: "Anzeige-Name", widget: "string" }
+
+  - name: "site"
+    label: "Site Settings"
+    files:
+      - file: "content/site/colors.json"
+        label: "Farben"
+        name: "colors"
+        fields:
+          - { name: "bg", label: "Hintergrund (#262626)", widget: "string", default: "#262626" }
+          - { name: "accent1", label: "Akzent 1 (#483D03)", widget: "string", default: "#483D03" }
+          - { name: "text", label: "Textfarbe (#F5F3BB)", widget: "string", default: "#F5F3BB" }
+          - { name: "accent2", label: "Akzent 2 (#96897B)", widget: "string", default: "#96897B" }
