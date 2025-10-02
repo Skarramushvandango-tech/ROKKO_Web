@@ -1,64 +1,34 @@
-import { useState, useRef, useEffect } from 'react';
-import { Volume2, VolumeX } from 'lucide-react';
+import { asset } from "../utils/asset";
 
-const IntroVideo: React.FC = () => {
-  const [isMuted, setIsMuted] = useState(true);
-  const videoRef = useRef<HTMLVideoElement>(null);
-
-  const toggleSound = () => {
-    if (videoRef.current) {
-      const newMutedState = !isMuted;
-      videoRef.current.muted = newMutedState;
-      setIsMuted(newMutedState);
-    }
-  };
-
-  useEffect(() => {
-    if (videoRef.current) {
-      videoRef.current.muted = isMuted;
-    }
-  }, []);
-
+export default function IntroVideo() {
+  // Button unten rechts IM VIDEO
   return (
-    <section className="relative w-full h-[60vh] md:h-[80vh] overflow-hidden">
-      {/* Placeholder for video - in real implementation, this would be the actual video */}
-      <div className="absolute inset-0 bg-gradient-to-br from-[#483D03] to-[#96897B] flex items-center justify-center">
-        <div className="text-center">
-          <h2 className="text-4xl md:text-6xl font-bold text-[#F5F3BB] mb-4">
-            ROKKO! Records
-          </h2>
-          <p className="text-lg md:text-xl text-[#F5F3BB]/80">
-            Intro Video Placeholder
-          </p>
-        </div>
-      </div>
-
-      {/* Video element (hidden in demo, would contain actual video) */}
+    <section style={{ position: "relative" }}>
       <video
-        ref={videoRef}
-        className="absolute inset-0 w-full h-full object-cover opacity-0"
+        src={asset("/video/intro.mp4")}
         autoPlay
         loop
-        muted={isMuted}
+        muted
         playsInline
-      >
-        {/* Video source would go here */}
-      </video>
-
-      {/* Sound Toggle Button */}
+        style={{ width: "100%", height: "auto", display: "block" }}
+        id="intro-video"
+      />
       <button
-        onClick={toggleSound}
-        className="absolute bottom-4 right-4 md:bottom-6 md:right-6 w-10 h-10 md:w-12 md:h-12 bg-black/50 hover:bg-black/70 rounded-full flex items-center justify-center transition-all duration-200 backdrop-blur-sm"
-        aria-label={isMuted ? 'Unmute video' : 'Mute video'}
+        aria-label="Sound an/aus"
+        onClick={() => {
+          const v = document.getElementById("intro-video") as HTMLVideoElement | null;
+          if (!v) return;
+          v.muted = !v.muted;
+        }}
+        style={{
+          position: "absolute", right: 12, bottom: 12,
+          padding: "6px 10px", borderRadius: 6,
+          background: "rgba(0,0,0,0.4)", color: "#F5F3BB", border: "1px solid rgba(255,255,255,0.2)"
+        }}
+        title="Sound an/aus"
       >
-        {isMuted ? (
-          <VolumeX className="w-5 h-5 md:w-6 md:h-6 text-white" />
-        ) : (
-          <Volume2 className="w-5 h-5 md:w-6 md:h-6 text-white" />
-        )}
+        Sound
       </button>
     </section>
   );
-};
-
-export default IntroVideo;
+}
