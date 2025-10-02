@@ -1,5 +1,5 @@
 // src/components/CurrentReleases.tsx
-import React, { useMemo, useState, useEffect, useRef } from "react";
+import { useMemo, useState, useEffect, useRef } from "react";
 import artistsData from "../data/mockData";
 import { asset } from "../utils/asset";
 
