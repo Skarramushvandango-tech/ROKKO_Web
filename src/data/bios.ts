@@ -1,5 +1,3 @@
-// src/data/bios.ts
-
 export type Links = {
   website?: string;
   instagram?: string;
@@ -9,10 +7,10 @@ export type Links = {
 };
 
 export type Bio = {
-  slug: string;      // kurzer Ordner-/URL-Name
-  name: string;      // Anzeigename
-  image: string;     // Bild unter /public/images/pictures/.../*.png
-  summary: string;   // Bio-Text
+  slug: string;
+  name: string;
+  image: string;
+  summary: string;
   links?: Links;
 };
 
@@ -45,7 +43,7 @@ Heute ist er nicht nur Stimme seiner eigenen Songs, sondern auch Produzent der A
   {
     slug: "rokko",
     name: "ROKKO! Records",
-    image: "/images/Logo/logo.png", // falls du ein eigenes Bild für „ROKKO!“ hast, anpassen
+    image: "/images/Logo/logo.png",
     summary: `Wir sind ROKKO! Records – und Du „noch“ nicht …
 Tach, wir sind die Neuen in der Szene. Und wir sind ein bisschen anders, dass ist aber auch gut so. Wir jagen nicht den Fame und sonnen uns auch nicht im Applaus. Wir haben kein Genre, wir engen uns nicht ein. Die Songs und Artists sind jeglicher Couleur uns eines ist sicher!
 * Es wird auf keinen Fall langweilig.
