@@ -1,68 +1,68 @@
 // src/App.tsx
-import React, { useState } from 'react';
-import Header from './components/Header';
-import Bios from "./components/Bios";
-import IntroVideo from './components/IntroVideo';
-import WelcomeSection from './components/WelcomeSection';
-import CurrentReleases from './components/CurrentReleases';
-import ArtistPage from './components/ArtistPage';
-import ContactForm from './components/ContactForm';
-import CommentSection from './components/CommentSection';
-import Footer from './components/Footer';
-import { AudioProvider } from './contexts/AudioContext';
-import { mockArtists, mockReleases } from './data/mockData';
+import { useState } from "react";
+import artists from "./data/mockData"; // muss ein Array mit Artists sein
 
-type ActivePage = 'home' | 'releases' | 'contact' | 'comments' | 'artist' | 'bios';
+import Header from "./components/Header";
+import IntroVideo from "./components/IntroVideo";
+import WelcomeSection from "./components/WelcomeSection";
+import CurrentReleases from "./components/CurrentReleases";
+import ArtistPage from "./components/ArtistPage";
+import ContactForm from "./components/ContactForm";
+import CommentSection from "./components/CommentSection";
+import Footer from "./components/Footer";
 
-function App() {
-  const [activePage, setActivePage] = useState<ActivePage>('home');
-  const [selectedArtist, setSelectedArtist] = useState<string | null>(null);
+type Page = "home" | "releases" | "artist" | "contact" | "comments";
 
-  const handleArtistSelect = (artistId: string) => {
-    setSelectedArtist(artistId);
-    setActivePage('artist');
-  };
+function slugify(name: string) {
+  return name.toLowerCase().replace(/\s+/g, "").replace(/[^\w-]/g, "");
+}
 
-  const renderContent = () => {
-    switch (activePage) {
-      case 'releases':
-        return <CurrentReleases releases={mockReleases} />;
-      case 'contact':
-        return <ContactForm />;
-      case 'comments':
-        return <CommentSection />;
-      case 'artist':
-        const artist = mockArtists.find(a => a.id === selectedArtist);
-        return artist ? <ArtistPage artist={artist} /> : <div>Artist not found</div>;
-      case 'bios':
-        return <Bios />;
-      default:
-        return (
+export default function App() {
+  const [page, setPage] = useState<Page>("home");
+  const [artistKey, setArtistKey] = useState<string | null>(null);
+
+  const bg = "#262626";
+  const fg = "#F5F3BB";
+
+  return (
+    <div style={{ minHeight: "100vh", background: bg, color: fg, display: "flex", flexDirection: "column" }}>
+      <Header
+        artists={artists.map(a => a.name)}
+        onGoHome={() => { setPage("home"); setArtistKey(null); }}
+        onGoReleases={() => { setPage("releases"); setArtistKey(null); }}
+        onGoContact={() => { setPage("contact"); setArtistKey(null); }}
+        onGoComments={() => { setPage("comments"); setArtistKey(null); }}
+        onPickArtist={(key) => { setArtistKey(key); setPage("artist"); }}
+      />
+
+      <main style={{ flex: 1 }}>
+        {page === "home" && (
           <>
             <IntroVideo />
             <WelcomeSection />
-            <CurrentReleases releases={mockReleases} />
+            <CurrentReleases
+              allArtists={artists}
+              onOpenArtist={(name) => { setArtistKey(slugify(name)); setPage("artist"); }}
+            />
           </>
-        );
-    }
-  };
+        )}
 
-  return (
-    <AudioProvider>
-      <div className="min-h-screen bg-[#262626] text-[#F5F3BB]">
-        <Header
-          onNavigate={setActivePage}
-          onArtistSelect={handleArtistSelect}
-          artists={mockArtists}
-          activePage={activePage}
-        />
-        <main className="relative">
-          {renderContent()}
-        </main>
-        <Footer />
-      </div>
-    </AudioProvider>
+        {page === "releases" && (
+          <CurrentReleases
+            allArtists={artists}
+            onOpenArtist={(name) => { setArtistKey(slugify(name)); setPage("artist"); }}
+          />
+        )}
+
+        {page === "artist" && artistKey && (
+          <ArtistPage allArtists={artists} artistKey={artistKey} />
+        )}
+
+        {page === "contact" && <ContactForm />}
+        {page === "comments" && <CommentSection />}
+      </main>
+
+      <Footer />
+    </div>
   );
 }
-
-export default App;
