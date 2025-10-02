@@ -1,67 +1,61 @@
-import React, { useState } from 'react';
-import Header from './components/Header';
-import Bios from './components/Bios';
-import IntroVideo from './components/IntroVideo';
-import WelcomeSection from './components/WelcomeSection';
-import CurrentReleases from './components/CurrentReleases';
-import ArtistPage from './components/ArtistPage';
-import ContactForm from './components/ContactForm';
-import CommentSection from './components/CommentSection';
-import Footer from './components/Footer';
-import { AudioProvider } from './contexts/AudioContext';
-import { mockArtists, mockReleases } from './data/mockData';
+// src/App.tsx
+import React, { useState } from "react";
+import artistsData from "./data/mockData";
 
-type ActivePage = 'home' | 'releases' | 'contact' | 'comments' | string;
+import Header from "./components/Header";
+import IntroVideo from "./components/IntroVideo";
+import WelcomeSection from "./components/WelcomeSection";
+import CurrentReleases from "./components/CurrentReleases";
+import ArtistPage from "./components/ArtistPage";
+import ContactForm from "./components/ContactForm";
+import CommentSection from "./components/CommentSection";
+import Footer from "./components/Footer";
 
-function App() {
-  const [activePage, setActivePage] = useState<ActivePage>('home');
-  const [selectedArtist, setSelectedArtist] = useState<string | null>(null);
+type Page = "home" | "releases" | "artist" | "contact" | "comments";
+type ArtistKey = string | null;
 
-  const handleArtistSelect = (artistId: string) => {
-    setSelectedArtist(artistId);
-    setActivePage('artist');
-  };
+export default function App() {
+  const [page, setPage] = useState<Page>("home");
+  const [artistKey, setArtistKey] = useState<ArtistKey>(null);
 
-  const renderContent = () => {
-    switch (activePage) {
-      case 'releases':
-        return <CurrentReleases releases={mockReleases} />;
-      case 'contact':
-        return <ContactForm />;
-      case 'comments':
-        return <CommentSection />;
-      case 'artist': {
-        const artist = mockArtists.find(a => a.id === selectedArtist);
-        return artist ? <ArtistPage artist={artist} /> : <div>Artist not found</div>;
-      }
-      default:
-        return (
+  function goHome() { setPage("home"); setArtistKey(null); }
+  function goReleases() { setPage("releases"); setArtistKey(null); }
+  function goContact() { setPage("contact"); setArtistKey(null); }
+  function goComments() { setPage("comments"); setArtistKey(null); }
+  function goArtist(key: string) { setArtistKey(key); setPage("artist"); }
+
+  return (
+    <div className="min-h-screen bg-[#262626] text-[#F5F3BB]">
+      <Header
+        onHome={goHome}
+        onReleases={goReleases}
+        onContact={goContact}
+        onComments={goComments}
+        onArtist={goArtist}
+        artists={artistsData}
+      />
+
+      <main className="relative">
+        {page === "home" && (
           <>
             <IntroVideo />
             <WelcomeSection />
-            <CurrentReleases releases={mockReleases} />
-            <Bios /> {/* Bios-Liste unter den Releases */}
+            <CurrentReleases />
           </>
-        );
-    }
-  };
+        )}
 
-  return (
-    <AudioProvider>
-      <div className="min-h-screen bg-[#262626] text-[#F5F3BB]">
-        <Header
-          onNavigate={setActivePage}
-          onArtistSelect={handleArtistSelect}
-          artists={mockArtists}
-          activePage={activePage}
-        />
-        <main className="relative">
-          {renderContent()}
-        </main>
-        <Footer />
-      </div>
-    </AudioProvider>
+        {page === "releases" && <CurrentReleases />}
+
+        {page === "artist" && artistKey && (
+          <ArtistPage artistKey={artistKey} />
+        )}
+
+        {page === "contact" && <ContactForm />}
+
+        {page === "comments" && <CommentSection />}
+      </main>
+
+      <Footer />
+    </div>
   );
 }
-
-export default App;
