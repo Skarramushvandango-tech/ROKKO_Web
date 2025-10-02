@@ -1,3 +1,4 @@
+// src/components/Header.tsx
 type Props = {
   artists: string[];
   onSelectArtist: (name: string) => void;
@@ -6,21 +7,21 @@ type Props = {
 
 export default function Header({ artists, onSelectArtist, onHome }: Props) {
   return (
-    <header className="sticky top-0 z-10 bg-zinc-900/90 backdrop-blur border-b border-zinc-800">
-      <div className="mx-auto max-w-5xl px-4 py-3 flex items-center gap-4">
+    <header className="sticky top-0 z-10 bg-black/80 backdrop-blur border-b border-white/10">
+      <div className="mx-auto max-w-5xl px-4 py-3 flex items-center gap-6">
         <button
           onClick={onHome}
-          className="font-bold tracking-wide text-yellow-400"
+          className="font-bold tracking-wide text-yellow-400 text-lg"
         >
           ROKKO! Records
         </button>
 
-        <nav className="ml-auto flex flex-wrap gap-2">
+        <nav className="ml-auto flex flex-wrap gap-3">
           {artists.map((name) => (
             <button
               key={name}
               onClick={() => onSelectArtist(name)}
-              className="px-2 py-1 rounded border border-zinc-700 hover:bg-zinc-800"
+              className="px-3 py-1 rounded-md border border-white/20 hover:bg-white/10 transition"
             >
               {name}
             </button>
