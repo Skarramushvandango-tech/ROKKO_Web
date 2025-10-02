@@ -1,5 +1,5 @@
 // src/components/CurrentReleases.tsx
-import React, { useRef, useState } from "react";
+import { useRef, useState } from "react";
 import data from "../data/artists.json";
 import { asset } from "../utils/asset";
 

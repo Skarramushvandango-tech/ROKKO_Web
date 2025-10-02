@@ -27,12 +27,9 @@ export default function App() {
   return (
     <div style={{ minHeight: "100vh", background: bg, color: fg, display: "flex", flexDirection: "column" }}>
       <Header
-        artists={artists.map(a => a.name)}
-        onGoHome={() => { setPage("home"); setArtistKey(null); }}
-        onGoReleases={() => { setPage("releases"); setArtistKey(null); }}
-        onGoContact={() => { setPage("contact"); setArtistKey(null); }}
-        onGoComments={() => { setPage("comments"); setArtistKey(null); }}
-        onPickArtist={(key) => { setArtistKey(key); setPage("artist"); }}
+        artists={artists.map(a => ({ name: a.name, slug: slugify(a.name) }))}
+        onSelectArtist={(slug) => { setArtistKey(slug); setPage("artist"); }}
+        onHome={() => { setPage("home"); setArtistKey(null); }}
       />
 
       <main style={{ flex: 1 }}>
@@ -40,22 +37,16 @@ export default function App() {
           <>
             <IntroVideo />
             <WelcomeSection />
-            <CurrentReleases
-              allArtists={artists}
-              onOpenArtist={(name) => { setArtistKey(slugify(name)); setPage("artist"); }}
-            />
+            <CurrentReleases />
           </>
         )}
 
         {page === "releases" && (
-          <CurrentReleases
-            allArtists={artists}
-            onOpenArtist={(name) => { setArtistKey(slugify(name)); setPage("artist"); }}
-          />
+          <CurrentReleases />
         )}
 
         {page === "artist" && artistKey && (
-          <ArtistPage allArtists={artists} artistKey={artistKey} />
+          <ArtistPage artistSlug={artistKey} />
         )}
 
         {page === "contact" && <ContactForm />}
