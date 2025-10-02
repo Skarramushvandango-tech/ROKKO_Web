@@ -1,8 +1,11 @@
 export default function WelcomeSection() {
   return (
-    <section style={{ maxWidth: 1200, margin: "0 auto", padding: "24px 16px" }}>
-      <h1 style={{ fontSize: 28, fontWeight: 800, marginBottom: 8 }}>Wir sind Rokko! Und du noch nicht</h1>
-      <p style={{ opacity: 0.9 }}>Willkommen bei ROKKO! Records.</p>
+    <section className="mx-auto max-w-5xl px-4 py-6">
+      <h1 className="text-2xl font-semibold mb-2">Willkommen bei ROKKO!</h1>
+      <p className="text-zinc-300">
+        Records aus dem Ruhrpott – Releases, Artists, Stories. Scroll oder wähle
+        oben einen Artist.
+      </p>
     </section>
   );
 }
