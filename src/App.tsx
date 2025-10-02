@@ -1,3 +1,4 @@
+// src/App.tsx
 import { useMemo, useState } from "react";
 import artistsData from "./data/mockData";
 
@@ -6,9 +7,10 @@ import IntroVideo from "./components/IntroVideo";
 import WelcomeSection from "./components/WelcomeSection";
 import CurrentReleases from "./components/CurrentReleases";
 import ArtistPage from "./components/ArtistPage";
+import ContactForm from "./components/ContactForm";
+import CommentSection from "./components/CommentSection";
 import Footer from "./components/Footer";
 
-/** Falls du später filtern willst – jetzt erst mal alles weiterreichen */
 function App() {
   const [selectedArtist, setSelectedArtist] = useState<string | null>(null);
   const artists = useMemo(() => artistsData, []);
@@ -30,10 +32,12 @@ function App() {
           <>
             <IntroVideo />
             <WelcomeSection />
-            <CurrentReleases artists={artists} onSelect={setSelectedArtist} />
+            <CurrentReleases />
+            <ContactForm />
+            <CommentSection />
           </>
         ) : (
-          <ArtistPage artist={sel} onBack={() => setSelectedArtist(null)} />
+          <ArtistPage artistKey={sel.name.toLowerCase().replace(/\s+/g, "")} />
         )}
       </main>
 
