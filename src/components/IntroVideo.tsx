@@ -1,9 +1,18 @@
+// src/components/IntroVideo.tsx
+import { asset } from "../utils/asset";
+
 export default function IntroVideo() {
   return (
     <section className="mx-auto max-w-5xl px-4 py-8">
-      {/* Platzhalter – wenn du eine Datei hast, setz sie hier ein */}
-      <div className="aspect-video w-full bg-zinc-800 grid place-items-center">
-        <span className="text-zinc-400">Intro / Trailer</span>
+      <div className="aspect-video w-full overflow-hidden rounded-md border border-white/10 bg-black/20">
+        <video
+          src={asset("/movies/intro_movie.mp4")}
+          autoPlay
+          muted
+          loop
+          playsInline
+          className="w-full h-full object-cover"
+        />
       </div>
     </section>
   );
