@@ -1,6 +1,3 @@
-// src/components/Header.tsx
-import { useState } from "react";
-
 type ReleaseArtist = {
   name: string;
   image: string;
@@ -19,64 +16,58 @@ type Props = {
 export default function Header({
   onHome, onReleases, onContact, onComments, onArtist, artists
 }: Props) {
-  const [open, setOpen] = useState(false);
+  let open = false;
+
+  function toggle() {
+    open = !open;
+    const nav = document.getElementById("rk-menu");
+    if (!nav) return;
+    nav.style.display = open ? "block" : "none";
+  }
 
   return (
-    <header className="sticky top-0 z-40 bg-[#262626]/90 backdrop-blur border-b border-white/10">
-      <div className="mx-auto max-w-6xl px-4 h-14 flex items-center justify-between">
-        {/* Logo links (klein, headerangepasst) */}
-        <button
-          onClick={onHome}
-          className="flex items-center gap-2 focus:outline-none"
-          title="ROKKO! Records – Home"
-        >
-          <img
-            src="/images/Logo/logo.png"
-            alt="ROKKO! Records"
-            className="h-8 w-auto object-contain"
-          />
-          <span className="font-semibold tracking-wide">ROKKO! Records</span>
+    <header style={{
+      position: "sticky", top: 0, zIndex: 40,
+      background: "rgba(38,38,38,0.9)", borderBottom: "1px solid rgba(255,255,255,0.1)",
+      backdropFilter: "blur(6px)"
+    }}>
+      <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 16px", height: 56, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        {/* Logo links */}
+        <button onClick={onHome} style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <img src="/images/Logo/logo.png" alt="ROKKO! Records" style={{ height: 32, width: "auto", objectFit: "contain" }} />
+          <span style={{ fontWeight: 600, letterSpacing: "0.02em" }}>ROKKO! Records</span>
         </button>
 
         {/* Burger rechts */}
-        <div className="relative">
-          <button
-            onClick={() => setOpen(!open)}
-            aria-expanded={open}
-            aria-controls="rk-menu"
-            className="p-2 rounded border border-white/15 hover:bg-white/10 focus:outline-none"
-            title="Menü"
-          >
-            {/* simple burger */}
-            <span className="block w-5 h-[2px] bg-current mb-[5px]" />
-            <span className="block w-5 h-[2px] bg-current mb-[5px]" />
-            <span className="block w-5 h-[2px] bg-current" />
+        <div style={{ position: "relative" }}>
+          <button onClick={toggle} title="Menü" style={{ padding: 8, border: "1px solid rgba(255,255,255,0.15)", borderRadius: 6 }}>
+            <span style={{ display: "block", width: 20, height: 2, background: "currentColor", marginBottom: 5 }} />
+            <span style={{ display: "block", width: 20, height: 2, background: "currentColor", marginBottom: 5 }} />
+            <span style={{ display: "block", width: 20, height: 2, background: "currentColor" }} />
           </button>
 
-          {open && (
-            <nav
-              id="rk-menu"
-              className="absolute right-0 mt-3 w-72 max-h-[70vh] overflow-auto rounded-md border border-white/15 bg-[#1f1f1f] shadow-lg p-2"
-              onMouseLeave={() => setOpen(false)}
-            >
-              <MenuButton label="Aktuelle Releases" onClick={() => { onReleases(); setOpen(false); }} />
+          <nav id="rk-menu" style={{
+            display: "none", position: "absolute", right: 0, marginTop: 12,
+            width: 280, maxHeight: "70vh", overflow: "auto",
+            background: "#1f1f1f", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 8, padding: 8
+          }}>
+            <MenuButton label="Aktuelle Releases" onClick={() => { onReleases(); toggle(); }} />
 
-              <div className="px-2 py-1 text-xs uppercase opacity-60">Artists</div>
-              <div className="flex flex-col">
-                {artists.map((a, idx) => (
-                  <MenuButton
-                    key={idx}
-                    label={a.name}
-                    onClick={() => { onArtist(slugify(a.name)); setOpen(false); }}
-                  />
-                ))}
-              </div>
+            <div style={{ padding: "6px 8px", fontSize: 11, opacity: 0.6, textTransform: "uppercase" }}>Artists</div>
+            <div style={{ display: "flex", flexDirection: "column" }}>
+              {artists.map((a: any, idx: number) => (
+                <MenuButton
+                  key={idx}
+                  label={a.name}
+                  onClick={() => { onArtist(slugify(a.name)); toggle(); }}
+                />
+              ))}
+            </div>
 
-              <div className="px-2 py-1 text-xs uppercase opacity-60 mt-2">Weitere</div>
-              <MenuButton label="Kontakt" onClick={() => { onContact(); setOpen(false); }} />
-              <MenuButton label="Kommentare" onClick={() => { onComments(); setOpen(false); }} />
-            </nav>
-          )}
+            <div style={{ padding: "6px 8px", fontSize: 11, opacity: 0.6, textTransform: "uppercase", marginTop: 8 }}>Weitere</div>
+            <MenuButton label="Kontakt" onClick={() => { onContact(); toggle(); }} />
+            <MenuButton label="Kommentare" onClick={() => { onComments(); toggle(); }} />
+          </nav>
         </div>
       </div>
     </header>
@@ -87,8 +78,14 @@ function MenuButton({ label, onClick }: { label: string; onClick: () => void }) 
   return (
     <button
       onClick={onClick}
-      className="w-full text-left px-3 py-2 rounded hover:bg-white/10 focus:outline-none"
       title={label}
+      style={{
+        width: "100%", textAlign: "left",
+        padding: "8px 12px", borderRadius: 6, border: "none",
+        background: "transparent", color: "inherit", cursor: "pointer"
+      }}
+      onMouseOver={e => (e.currentTarget.style.background = "rgba(255,255,255,0.08)")}
+      onMouseOut={e => (e.currentTarget.style.background = "transparent")}
     >
       {label}
     </button>
