@@ -1,12 +1,12 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
 
-// WICHTIG: base = '/<Repo-Name>/'  -> bei dir '/ROKKO_Web/'
 export default defineConfig({
-  base: '/ROKKO_Web/',
   plugins: [react()],
+  // wichtig für GitHub Pages unter /ROKKO_Web/
+  base: "/ROKKO_Web/",
   build: {
-    outDir: 'dist',
-    emptyOutDir: true,
-  },
-})
+    outDir: "dist",
+    sourcemap: false
+  }
+});
