@@ -1,5 +1,5 @@
 // src/components/ArtistPage.tsx
-import React, { useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import artistsData from "../data/mockData";
 import { asset } from "../utils/asset";
 
