@@ -1,9 +1,12 @@
-import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
 
-// GitHub Pages unter /ROKKO_Web/
+// WICHTIG: base = '/<Repo-Name>/'  -> bei dir '/ROKKO_Web/'
 export default defineConfig({
   base: '/ROKKO_Web/',
   plugins: [react()],
-  optimizeDeps: { exclude: ['lucide-react'] },
-});
+  build: {
+    outDir: 'dist',
+    emptyOutDir: true,
+  },
+})
