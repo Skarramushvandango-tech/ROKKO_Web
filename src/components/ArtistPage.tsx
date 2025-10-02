@@ -1,165 +1,110 @@
-import React, { useState } from 'react';
-import { ChevronDown, ChevronUp, Play, Pause } from 'lucide-react';
-import { useAudio } from '../contexts/AudioContext';
+// src/components/ArtistPage.tsx
+import React, { useMemo, useRef, useState } from "react";
+import artistsData from "../data/mockData";
 
-interface Song {
-  id: string;
-  title: string;
-  duration: string;
-  audioUrl: string;
+type Track = { file: string; title: string };
+type Release = { cover: string; thumbnail: string; picture: string; tracks: Track[] };
+type Artist = { name: string; image: string; releases: Record<string, Release> };
+
+type Props = { artistKey: string };
+
+function pauseAllExcept(current?: HTMLAudioElement | null) {
+  const nodes = document.querySelectorAll<HTMLAudioElement>("audio");
+  nodes.forEach(a => {
+    if (a !== current && !a.paused) a.pause();
+  });
 }
 
-interface Release {
-  id: string;
-  title: string;
-  cover: string;
-  songs: Song[];
-}
+export default function ArtistPage({ artistKey }: Props) {
+  const artists = artistsData as unknown as Artist[];
+  const artist = useMemo(() => {
+    return artists.find(a => slugify(a.name) === artistKey) || null;
+  }, [artists, artistKey]);
 
-interface Artist {
-  id: string;
-  name: string;
-  photo: string;
-  biography: string;
-  currentRelease: Release;
-  youtube: string[];
-}
+  const [openRelease, setOpenRelease] = useState<string | null>(null);
+  const playerRefs = useRef<Record<string, HTMLAudioElement | null>>({});
 
-interface ArtistPageProps {
-  artist: Artist;
-}
-
-const ArtistPage: React.FC<ArtistPageProps> = ({ artist }) => {
-  const [isReleaseExpanded, setIsReleaseExpanded] = useState(false);
-  const { currentTrack, isPlaying, playTrack, pauseTrack } = useAudio();
-
-  const handlePlayPause = (song: Song) => {
-    if (currentTrack?.id === song.id) {
-      if (isPlaying) {
-        pauseTrack();
-      } else {
-        playTrack(song);
-      }
-    } else {
-      playTrack(song);
+  if (!artist) {
+    return <div className="mx-auto max-w-4xl px-4 py-10">Artist nicht gefunden.</div>;
     }
-  };
 
-  const getYouTubeEmbedUrl = (url: string) => {
-    const videoId = url.split('v=')[1]?.split('&')[0] || url.split('/').pop();
-    return `https://www.youtube.com/embed/${videoId}`;
-  };
+  const releases = Object.entries(artist.releases);
 
   return (
-    <div className="min-h-screen py-16 md:py-24">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Artist Header */}
-        <div className="text-center mb-12">
-          <div className="w-48 h-48 md:w-64 md:h-64 mx-auto mb-8 rounded-full overflow-hidden shadow-2xl">
-            <img
-              src={artist.photo}
-              alt={artist.name}
-              className="w-full h-full object-cover"
-            />
-          </div>
-          <h1 className="text-4xl md:text-5xl font-bold text-[#F5F3BB] mb-4">
-            {artist.name}
-          </h1>
-        </div>
+    <section className="mx-auto max-w-6xl px-4 py-10">
+      <header className="flex items-center gap-4 mb-6">
+        <img
+          src={artist.image}
+          alt={artist.name}
+          className="w-16 h-16 rounded object-cover"
+        />
+        <h2 className="text-2xl font-bold">{artist.name}</h2>
+      </header>
 
-        {/* Biography */}
-        <div className="mb-12">
-          <h2 className="text-2xl font-bold text-[#F5F3BB] mb-6">Biography</h2>
-          <div className="prose prose-lg max-w-none">
-            <p className="text-[#F5F3BB] leading-relaxed text-lg">
-              {artist.biography}
-            </p>
-          </div>
-        </div>
-
-        {/* Current Release */}
-        <div className="mb-12">
-          <h2 className="text-2xl font-bold text-[#F5F3BB] mb-6">Current Release</h2>
-          
-          <div className="bg-[#483D03]/20 rounded-lg p-6 border border-[#483D03]">
-            <div className="flex flex-col sm:flex-row items-center gap-6 mb-6">
-              <div className="w-32 h-32 flex-shrink-0 rounded-lg overflow-hidden shadow-lg">
-                <img
-                  src={artist.currentRelease.cover}
-                  alt={artist.currentRelease.title}
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              <div className="text-center sm:text-left flex-1">
-                <h3 className="text-xl font-bold text-[#F5F3BB] mb-2">
-                  {artist.currentRelease.title}
-                </h3>
-                <button
-                  onClick={() => setIsReleaseExpanded(!isReleaseExpanded)}
-                  className="flex items-center gap-2 text-[#96897B] hover:text-[#F5F3BB] transition-colors mx-auto sm:mx-0"
-                >
-                  {isReleaseExpanded ? 'Hide songs' : 'Show songs'}
-                  {isReleaseExpanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
-                </button>
-              </div>
-            </div>
-
-            {/* Songs List */}
-            {isReleaseExpanded && (
-              <div className="space-y-3">
-                <h4 className="text-lg font-semibold text-[#F5F3BB] mb-4">Tracklist</h4>
-                {artist.currentRelease.songs.map((song, index) => (
-                  <div
-                    key={song.id}
-                    className="flex items-center justify-between p-3 bg-[#262626] rounded-lg hover:bg-[#483D03]/30 transition-all duration-200"
-                  >
-                    <div className="flex items-center gap-4">
-                      <button
-                        onClick={() => handlePlayPause(song)}
-                        className="w-10 h-10 bg-[#483D03] hover:bg-[#96897B] rounded-full flex items-center justify-center transition-all duration-200 group"
-                      >
-                        {currentTrack?.id === song.id && isPlaying ? (
-                          <Pause className="w-5 h-5 text-[#F5F3BB] group-hover:text-[#262626]" />
-                        ) : (
-                          <Play className="w-5 h-5 text-[#F5F3BB] group-hover:text-[#262626] ml-0.5" />
-                        )}
-                      </button>
-                      <div>
-                        <p className="text-[#F5F3BB] font-medium">{song.title}</p>
-                        <p className="text-[#96897B] text-sm">Track {index + 1}</p>
-                      </div>
-                    </div>
-                    <span className="text-[#96897B] text-sm">{song.duration}</span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* YouTube Videos */}
-        {artist.youtube && artist.youtube.length > 0 && (
-          <div className="mb-12">
-            <h2 className="text-2xl font-bold text-[#F5F3BB] mb-6">Videos</h2>
-            <div className="grid gap-6">
-              {artist.youtube.map((videoUrl, index) => (
-                <div key={index} className="aspect-video rounded-lg overflow-hidden shadow-lg">
-                  <iframe
-                    src={getYouTubeEmbedUrl(videoUrl)}
-                    title={`${artist.name} Video ${index + 1}`}
-                    className="w-full h-full"
-                    frameBorder="0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
+        {releases.map(([name, rel]) => {
+          const isOpen = openRelease === name;
+          return (
+            <div key={name}>
+              <button
+                type="button"
+                className="group block w-full text-left"
+                onClick={() => setOpenRelease(isOpen ? null : name)}
+                aria-expanded={isOpen}
+                aria-controls={`rel-${name}`}
+                title={`${artist.name} – ${name}`}
+              >
+                <div className="aspect-square w-full overflow-hidden rounded-md border border-white/10 bg-black/20">
+                  <img
+                    src={rel.thumbnail}
+                    alt={`${artist.name} – ${name} (Thumbnail)`}
+                    loading="lazy"
+                    className="h-full w-full object-cover group-hover:scale-[1.02] transition-transform"
                   />
                 </div>
-              ))}
-            </div>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-};
+                <div className="mt-2">
+                  <p className="text-sm font-semibold">{name}</p>
+                </div>
+              </button>
 
-export default ArtistPage;
+              {isOpen && (
+                <div id={`rel-${name}`} className="mt-3 rounded-md border border-white/15 bg-[#1f1f1f] p-3">
+                  <img
+                    src={rel.cover}
+                    alt={`${artist.name} – ${name} (Cover groß)`}
+                    className="w-full h-auto rounded"
+                  />
+                  <div className="mt-3 space-y-3">
+                    {rel.tracks.map((t, i) => {
+                      const key = `${name}-${i}`;
+                      return (
+                        <div key={key} className="rounded bg-black/20 p-2">
+                          <div className="text-sm mb-1">{t.title}</div>
+                          <audio
+                            controls
+                            preload="none"
+                            ref={el => (playerRefs.current[key] = el)}
+                            onPlay={() => pauseAllExcept(playerRefs.current[key])}
+                            className="w-full"
+                          >
+                            <source src={t.file} type="audio/mp4" />
+                            <source src={t.file} type="audio/aac" />
+                            Dein Browser unterstützt das Audioformat nicht.
+                          </audio>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
+function slugify(name: string) {
+  return name.toLowerCase().replace(/\s+/g, "").replace(/[^\w-]/g, "");
+}
