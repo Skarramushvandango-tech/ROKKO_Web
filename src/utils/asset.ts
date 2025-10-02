@@ -1,4 +1,5 @@
-export function asset(p: string) {
-  const base = import.meta.env.BASE_URL || "/";
-  return base + p.replace(/^\/+/, "");
+// src/utils/asset.ts
+export function asset(path: string) {
+  const base = import.meta.env.BASE_URL ?? "/";
+  return `${base}${path.replace(/^\/+/, "")}`;
 }
