@@ -1,37 +1,29 @@
 // src/components/ArtistPage.tsx
 import { useEffect, useMemo, useRef, useState } from "react";
-import artistsData from "../data/mockData";
+import data from "../data/artists.json";
 import { asset } from "../utils/asset";
 
 type Track = { file: string; title: string };
-type Release = { cover: string; thumbnail: string; picture: string; tracks: Track[] };
-type Artist = { name: string; image: string; releases: Record<string, Release> };
-
-type Props = { artistKey: string };
+type Release = { name: string; cover: string; thumbnail?: string; picture?: string; tracks: Track[] };
+type Artist = { name: string; image: string; releases: Release[] };
 
 function pauseAllExcept(current?: HTMLAudioElement | null) {
   const nodes = document.querySelectorAll<HTMLAudioElement>("audio");
-  nodes.forEach((a) => {
-    if (a !== current && !a.paused) a.pause();
-  });
+  nodes.forEach((a) => { if (a !== current && !a.paused) a.pause(); });
 }
+const slugify = (s: string) => s.toLowerCase().replace(/\s+/g, "").replace(/[^\w-]/g, "");
 
-function slugify(name: string) {
-  return name.toLowerCase().replace(/\s+/g, "").replace(/[^\w-]/g, "");
-}
-
-export default function ArtistPage({ artistKey }: Props) {
-  const artists = artistsData as unknown as Artist[];
+export default function ArtistPage({ artistSlug }: { artistSlug: string }) {
+  const artists: Artist[] = ((data as any).items || []) as Artist[];
   const artist = useMemo(
-    () => artists.find((a) => slugify(a.name) === artistKey) || null,
-    [artists, artistKey]
+    () => artists.find((a) => slugify(a.name) === artistSlug) || null,
+    [artists, artistSlug]
   );
 
-  const [openRelease, setOpenRelease] = useState<string | null>(null);
+  const [open, setOpen] = useState<string | null>(null);
   const playerRefs = useRef<Record<string, HTMLAudioElement | null>>({});
   const [bioHTML, setBioHTML] = useState<string>("");
 
-  // Bio aus /data/bios.html laden (vollständig auf Detailseite)
   useEffect(() => {
     if (!artist) return;
     const slug = slugify(artist.name);
@@ -41,142 +33,91 @@ export default function ArtistPage({ artistKey }: Props) {
         const doc = new DOMParser().parseFromString(html, "text/html");
         const byId = doc.getElementById(slug);
         const byData = doc.querySelector(`[data-artist="${slug}"]`);
-        const candidate = byId || byData || doc.body;
-        setBioHTML(candidate.innerHTML || "");
+        const el = byId || byData;
+        setBioHTML(el?.innerHTML || "");
       })
       .catch(() => setBioHTML(""));
   }, [artist]);
 
   if (!artist)
     return (
-      <div style={{ maxWidth: 1000, margin: "0 auto", padding: "40px 16px" }}>
+      <section className="mx-auto max-w-5xl px-4 py-6 text-[color:var(--text)]">
         Artist nicht gefunden.
-      </div>
+      </section>
     );
 
-  const releases = Object.entries(artist.releases);
-
   return (
-    <section style={{ maxWidth: 1200, margin: "0 auto", padding: "40px 16px" }}>
-      <header style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 24 }}>
+    <section className="mx-auto max-w-5xl px-4 py-6 text-[color:var(--text)]">
+      <header className="flex items-center gap-4 mb-4">
         <img
           src={asset(artist.image)}
           alt={artist.name}
-          style={{ width: 64, height: 64, borderRadius: 8, objectFit: "cover" }}
+          className="w-16 h-16 rounded object-cover"
         />
-        <h2 style={{ fontSize: 24, fontWeight: 700 }}>{artist.name}</h2>
+        <h2 className="text-2xl font-bold">{artist.name}</h2>
       </header>
 
-      {/* Vollständige Bio */}
       {bioHTML && (
         <article
-          style={{
-            marginBottom: 32,
-            lineHeight: 1.6,
-            fontSize: 16,
-          }}
+          className="mb-6 leading-relaxed"
           dangerouslySetInnerHTML={{ __html: bioHTML }}
         />
       )}
 
-      <div
-        style={{
-          display: "grid",
-          gap: 24,
-          gridTemplateColumns: "repeat(2,1fr)",
-        }}
-      >
-        {releases.map(([name, rel]) => {
-          const isOpen = openRelease === name;
+      <div className="grid gap-6 sm:grid-cols-2">
+        {(artist.releases || []).map((rel) => {
+          const isOpen = open === rel.name;
           return (
-            <div key={name}>
+            <article key={rel.name} className="rounded border border-white/10 bg-black/20 p-3">
               <button
-                type="button"
-                onClick={() => setOpenRelease(isOpen ? null : name)}
+                onClick={() => setOpen(isOpen ? null : rel.name)}
+                className="w-full text-left"
                 aria-expanded={isOpen}
-                aria-controls={`rel-${name}`}
-                title={`${artist.name} – ${name}`}
-                style={{
-                  display: "block",
-                  width: "100%",
-                  textAlign: "left",
-                  background: "transparent",
-                  border: "none",
-                  color: "inherit",
-                  cursor: "pointer",
-                }}
+                title={`${artist.name} – ${rel.name}`}
               >
-                <div
-                  style={{
-                    aspectRatio: "1/1",
-                    width: "100%",
-                    overflow: "hidden",
-                    borderRadius: 8,
-                    border: "1px solid rgba(255,255,255,0.1)",
-                    background: "rgba(0,0,0,0.2)",
-                  }}
-                >
+                <div className="aspect-square overflow-hidden rounded-md border border-white/10 bg-black/20">
                   <img
-                    src={asset(rel.thumbnail)}
-                    alt={`${artist.name} – ${name} (Thumbnail)`}
+                    src={asset(rel.thumbnail || rel.cover)}
+                    alt={`${artist.name} – ${rel.name} (Thumbnail)`}
+                    className="h-full w-full object-cover"
                     loading="lazy"
-                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
                   />
                 </div>
-                <div style={{ marginTop: 8 }}>
-                  <div style={{ fontSize: 14, fontWeight: 600 }}>{name}</div>
-                </div>
+                <div className="mt-2 text-sm font-semibold">{rel.name}</div>
               </button>
 
               {isOpen && (
-                <div
-                  id={`rel-${name}`}
-                  style={{
-                    marginTop: 12,
-                    border: "1px solid rgba(255,255,255,0.15)",
-                    background: "#1f1f1f",
-                    borderRadius: 8,
-                    padding: 12,
-                  }}
-                >
+                <div className="mt-3 rounded-md border border-white/10 bg-black/30 p-3">
                   <img
                     src={asset(rel.cover)}
-                    alt={`${artist.name} – ${name} (Cover groß)`}
-                    style={{ width: "100%", height: "auto", borderRadius: 6 }}
+                    alt={`${artist.name} – ${rel.name} (Cover)`}
+                    className="w-full h-auto rounded"
                   />
-                  <div style={{ marginTop: 12 }}>
+                  <ul className="mt-3 space-y-2">
                     {rel.tracks.map((t, i) => {
-                      const key = `${name}-${i}`;
+                      const k = `${rel.name}-t${i}`;
                       const file = asset(t.file);
                       return (
-                        <div
-                          key={key}
-                          style={{
-                            background: "rgba(0,0,0,0.2)",
-                            padding: 8,
-                            borderRadius: 6,
-                            marginBottom: 8,
-                          }}
-                        >
-                          <div style={{ fontSize: 14, marginBottom: 6 }}>{t.title}</div>
+                        <li key={k} className="rounded bg-black/30 p-2">
+                          <div className="mb-1 text-sm">{t.title}</div>
                           <audio
                             controls
                             preload="none"
-                            ref={(el) => (playerRefs.current[key] = el)}
-                            onPlay={() => pauseAllExcept(playerRefs.current[key])}
-                            style={{ width: "100%" }}
+                            ref={(el) => (playerRefs.current[k] = el)}
+                            onPlay={() => pauseAllExcept(playerRefs.current[k])}
+                            className="w-full"
                           >
                             <source src={file} type="audio/mp4" />
                             <source src={file} type="audio/aac" />
                             Dein Browser unterstützt das Audioformat nicht.
                           </audio>
-                        </div>
+                        </li>
                       );
                     })}
-                  </div>
+                  </ul>
                 </div>
               )}
-            </div>
+            </article>
           );
         })}
       </div>
