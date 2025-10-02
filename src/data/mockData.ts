@@ -1,157 +1,166 @@
-// src/data/mockData.ts
-
 export interface Track {
-  file: string;      // Pfad zu /public/...
-  label: string;     // Anzeige-Name
+  file: string;
+  title: string;
 }
 
 export interface Release {
-  id: string;        // slug
-  title: string;     // Release-Titel
-  cover: string;     // großes Cover
-  coverMini?: string;// Miniatur
-  audio: Track[];    // Tracks
+  cover: string;
+  picture: string;
+  tracks: Track[];
 }
 
 export interface Artist {
-  id: string;        // slug
-  name: string;      // Anzeigename
-  picture: string;   // /images/pictures/.../*.png
-  releases: Release[];
+  name: string;
+  image: string;
+  releases: { [key: string]: Release };
 }
 
-export const mockArtists: Artist[] = [
+export const artists: Artist[] = [
   {
-    id: "fleurbenuie",
-    name: "Fleur Beunié",
-    picture: "/images/pictures/fleurbenuie/fleurbenuie.png",
-    releases: [
-      {
-        id: "feuleger",
-        title: "Feu Léger",
-        cover: "/images/cover/fleurbeuniecover/feu_leger_cover.png",
-        coverMini: "/images/cover/fleurbeuniecover/leger_mini.png",
-        audio: [
-          { file: "/audio/fleurbenuie/feuleger/feuleger_main.m4a",          label: "Feu Léger (Main)" },
-          { file: "/audio/fleurbenuie/feuleger/feuleger_house.m4a",         label: "Feu Léger (House Mix)" },
-          { file: "/audio/fleurbenuie/feuleger/feuleger_frenchclassic.m4a", label: "Feu Léger (French Classic Mix)" },
-          { file: "/audio/fleurbenuie/feuleger/feuleger_sundown.m4a",       label: "Feu Léger (Sundown Mix)" },
-          { file: "/audio/fleurbenuie/feuleger/feuleger_electricclub1.m4a", label: "Feu Léger (Electric Club Mix)" }
-        ]
-      }
-    ]
+    name: "Fleur et Beunié",
+    image: "/images/pictures/fleurbenuie/fleurbenuie.png",
+    releases: {
+      "Feu Léger": {
+        cover: "/images/cover/fleurbenuie/feu_leger_cover.png",
+        picture: "/images/pictures/fleurbenuie/fleurbenuie.png",
+        tracks: [
+          { file: "/audio/fleurbenuie/feuleger/feuleger_main.m4a", title: "Feu Léger (Main)" },
+          { file: "/audio/fleurbenuie/feuleger/feuleger_house.m4a", title: "Feu Léger (House Mix)" },
+          { file: "/audio/fleurbenuie/feuleger/feuleger_frenchclassic.m4a", title: "Feu Léger (French Classic Mix)" },
+          { file: "/audio/fleurbenuie/feuleger/feuleger_sundown.m4a", title: "Feu Léger (Sundown Mix)" },
+          { file: "/audio/fleurbenuie/feuleger/feuleger_electricclub1.m4a", title: "Feu Léger (Electric Club Mix)" },
+        ],
+      },
+    },
   },
   {
-    id: "henribellieu",
     name: "Henri Bellieu",
-    picture: "/images/pictures/henri/henri.png",
-    releases: [
-      {
-        id: "lafemme",
-        title: "La Femme",
-        cover: "/images/cover/henribellieucouver/la_femme.png",
-        coverMini: "/images/cover/henribellieucouver/femme_mini.png",
-        audio: [
-          { file: "/audio/henribellieu/lafemme/la_femme_main.m4a", label: "La Femme (Main)" },
-          { file: "/audio/henribellieu/lafemme/la_femme_deux.m4a", label: "La Femme (Version Deux)" }
-        ]
+    image: "/images/pictures/henri/henri.png",
+    releases: {
+      "La Femme": {
+        cover: "/images/cover/henribellieucovers/la_femme.png",
+        picture: "/images/pictures/henri/henri.png",
+        tracks: [
+          { file: "/audio/henribellieu/lafemme/la_femme_main.m4a", title: "La Femme (Main)" },
+          { file: "/audio/henribellieu/lafemme/la_femme_deux.m4a", title: "La Femme (Version Deux)" },
+        ],
       },
-      {
-        id: "petitcolibri",
-        title: "Petit Colibri",
-        cover: "/images/cover/henribellieucouver/petite_colibri.png",
-        coverMini: "/images/cover/henribellieucouver/petite_mini.png",
-        audio: [
-          { file: "/audio/henribellieu/petitecolibri/petite_colibri_main.m4a",           label: "Petit Colibri (Main)" },
-          { file: "/audio/henribellieu/petitecolibri/petite_colibri_nocturne_mix.m4a",   label: "Petit Colibri (Nocturne Mix)" },
-          { file: "/audio/henribellieu/petitecolibri/petite_colibri_ennio_mix.m4a",      label: "Petit Colibri (Ennio Mix)" }
-        ]
-      }
-    ]
+      "Petit Colibri": {
+        cover: "/images/cover/henribellieucovers/petite_colibri.png",
+        picture: "/images/pictures/henri/henri.png",
+        tracks: [
+          { file: "/audio/henribellieu/petitecolibri/petite_colibri_main.m4a", title: "Petit Colibri (Main)" },
+          { file: "/audio/henribellieu/petitecolibri/petite_colibri_nocturne_mix.m4a", title: "Petit Colibri (Nocturne Mix)" },
+          { file: "/audio/henribellieu/petitecolibri/petite_colibri_ennio_mix.m4a", title: "Petit Colibri (Ennio Mix)" },
+        ],
+      },
+    },
   },
   {
-    id: "markuserling",
     name: "Markus Erling",
-    picture: "/images/pictures/erling/erling.png",
-    releases: [
-      {
-        id: "endlichschlafen",
-        title: "Endlich Schlafen",
+    image: "/images/pictures/erling/erling.png",
+    releases: {
+      "Endlich Schlafen": {
         cover: "/images/cover/markuserlingcover/schlafen_cover.png",
-        coverMini: "/images/cover/markuserlingcover/schlafen_mini.png",
-        audio: [
-          { file: "/audio/markuserling/endlichschlafen/endlich_schlafen_main.m4a",    label: "Endlich Schlafen (Main)" },
-          { file: "/audio/markuserling/endlichschlafen/endlich_schlafen_monotoni.m4a", label: "Endlich Schlafen (Monotoni Mix)" }
-        ]
+        picture: "/images/pictures/erling/erling.png",
+        tracks: [
+          { file: "/audio/markuserling/endlichschlafen/endlich_schlafen_main.m4a", title: "Endlich Schlafen (Main)" },
+          { file: "/audio/markuserling/endlichschlafen/endlich_schlafen_monotoni.m4a", title: "Endlich Schlafen (Monotoni Mix)" },
+        ],
       },
-      {
-        id: "regnet",
-        title: "Der Tag an dem es regnet",
+      "Der Tag an dem es regnet": {
         cover: "/images/cover/markuserlingcover/regen_cover.png",
-        coverMini: "/images/cover/markuserlingcover/regen_mini.png",
-        audio: [
-          { file: "/audio/markuserling/regnet/regnet_main.m4a", label: "Der Tag an dem es regnet (Main)" },
-          { file: "/audio/markuserling/regnet/regnet_rmx.m4a",  label: "Der Tag an dem es regnet (Remix)" }
-        ]
-      }
-    ]
+        picture: "/images/pictures/erling/erling.png",
+        tracks: [
+          { file: "/audio/markuserling/regnet/regnet_main.m4a", title: "Der Tag an dem es regnet (Main)" },
+          { file: "/audio/markuserling/regnet/regnet_rmx.m4a", title: "Der Tag an dem es regnet (Remix)" },
+        ],
+      },
+    },
   },
   {
-    id: "skankschablonski",
     name: "Skank Schablonski",
-    picture: "/images/pictures/skank/skank.png",
-    releases: [
-      {
-        id: "kohleraus",
-        title: "Kohle raus",
+    image: "/images/pictures/skank/skank.png",
+    releases: {
+      "Kohle raus": {
         cover: "/images/cover/skankschablonskicover/kohle_raus_cover.png",
-        coverMini: "/images/cover/skankschablonskicover/kohle_mini.png",
-        audio: [
-          { file: "/audio/skankschablonski/kohleraus/kohle_raus_main.m4a", label: "Kohle raus (Main)" },
-          { file: "/audio/skankschablonski/kohleraus/kohle_raus_rmx.m4a",  label: "Kohle raus (Remix)" }
-        ]
-      }
-    ]
+        picture: "/images/pictures/skank/skank.png",
+        tracks: [
+          { file: "/audio/skankschablonski/kohleraus/kohle_raus_main.m4a", title: "Kohle raus (Main)" },
+          { file: "/audio/skankschablonski/kohleraus/kohle_raus_rmx.m4a", title: "Kohle raus (Remix)" },
+        ],
+      },
+    },
   },
   {
-    id: "skaramushvandango",
     name: "Skaramush Vandango",
-    picture: "/images/pictures/vandango/skaramush.png",
-    releases: [
-      {
-        id: "neurocentric",
-        title: "Neurocentric",
+    image: "/images/pictures/vandango/skaramush.png",
+    releases: {
+      "Among the Crowd": {
         cover: "/images/cover/skaramushvandangocover/neurocentric.png",
-        coverMini: "/images/cover/skaramushvandangocover/neurocentric_mini.png",
-        audio: [
-          { file: "/audio/skaramushvandango/neurocentric/amongthecrowd_perrymix.m4a",     label: "Among the Crowd (Perry Mix)" },
-          { file: "/audio/skaramushvandango/neurocentric/amongthecrowd_sweetchillimix.m4a", label: "Among the Crowd (Sweet Chilli Mix)" },
-
-          { file: "/audio/skaramushvandango/neurocentric/borrowedtime_og.m4a",    label: "Borrowed Time (Main)" },
-          { file: "/audio/skaramushvandango/neurocentric/borrowedtime_l8tnite.m4a", label: "Borrowed Time (Late Nite Mix)" },
-
-          { file: "/audio/skaramushvandango/neurocentric/itry_4her.m4a",     label: "I Try (4Her Mix)" },
-          { file: "/audio/skaramushvandango/neurocentric/itry_ibizasun.m4a", label: "I Try (Ibiza Sun Mix)" },
-
-          { file: "/audio/skaramushvandango/neurocentric/likewater_main.m4a",        label: "Like Water (Main)" },
-          { file: "/audio/skaramushvandango/neurocentric/likewater_elwoodblues.m4a", label: "Like Water (Elwood Blues Mix)" },
-
-          { file: "/audio/skaramushvandango/neurocentric/nightsgoesby_main.m4a", label: "Nights Go By (Main)" },
-          { file: "/audio/skaramushvandango/neurocentric/nightgoesby_ogmix.m4a", label: "Nights Go By (RMX)" },
-
-          { file: "/audio/skaramushvandango/neurocentric/notalovesong_grungemix.m4a", label: "Not a Love Song (Grunge Mix)" },
-          { file: "/audio/skaramushvandango/neurocentric/notalovesong_lumpemix.m4a",  label: "Not a Love Song (Lumpe Mix)" },
-
-          { file: "/audio/skaramushvandango/neurocentric/rausbistdu_main.m4a",       label: "Raus bist Du (Main)" },
-          { file: "/audio/skaramushvandango/neurocentric/rausbistdu_menemistemix.m4a", label: "Raus bist Du (Menemiste Mix)" },
-
-          { file: "/audio/skaramushvandango/neurocentric/systemfailure_main.m4a",     label: "System Failure (Main)" },
-          { file: "/audio/skaramushvandango/neurocentric/systemfailure_inyafaze.m4a", label: "System Failure (InYaFaze Mix)" },
-          { file: "/audio/skaramushvandango/neurocentric/systemfailure_kortanamix.m4a", label: "System Failure (Kortana Mix)" }
-        ]
-      }
-    ]
-  }
+        picture: "/images/pictures/vandango/skaramush.png",
+        tracks: [
+          { file: "/audio/skaramushvandango/neurocentric/amongthecrowd_perrymix.m4a", title: "Among the Crowd (Perry Mix)" },
+          { file: "/audio/skaramushvandango/neurocentric/amongthecrowd_sweetchillimix.m4a", title: "Among the Crowd (Sweet Chilli Mix)" },
+        ],
+      },
+      "Borrowed Time": {
+        cover: "/images/cover/skaramushvandangocover/neurocentric.png",
+        picture: "/images/pictures/vandango/skaramush.png",
+        tracks: [
+          { file: "/audio/skaramushvandango/neurocentric/borrowedtime_og.m4a", title: "Borrowed Time (Main)" },
+          { file: "/audio/skaramushvandango/neurocentric/borrowedtime_l8tnite.m4a", title: "Borrowed Time (Late Nite Mix)" },
+        ],
+      },
+      "I Try": {
+        cover: "/images/cover/skaramushvandangocover/neurocentric.png",
+        picture: "/images/pictures/vandango/skaramush.png",
+        tracks: [
+          { file: "/audio/skaramushvandango/neurocentric/itry_4her.m4a", title: "I Try (4Her Mix)" },
+          { file: "/audio/skaramushvandango/neurocentric/itry_ibizasun.m4a", title: "I Try (Ibiza Sun Mix)" },
+        ],
+      },
+      "Like Water": {
+        cover: "/images/cover/skaramushvandangocover/neurocentric.png",
+        picture: "/images/pictures/vandango/skaramush.png",
+        tracks: [
+          { file: "/audio/skaramushvandango/neurocentric/likewater_main.m4a", title: "Like Water (Main)" },
+          { file: "/audio/skaramushvandango/neurocentric/likewater_elwoodblues.m4a", title: "Like Water (Elwood Blues Mix)" },
+        ],
+      },
+      "Nights Go By": {
+        cover: "/images/cover/skaramushvandangocover/neurocentric.png",
+        picture: "/images/pictures/vandango/skaramush.png",
+        tracks: [
+          { file: "/audio/skaramushvandango/neurocentric/nightsgoesby_main.m4a", title: "Nights Go By (Main)" },
+          { file: "/audio/skaramushvandango/neurocentric/nightgoesby_ogmix.m4a", title: "Nights Go By (RMX)" },
+        ],
+      },
+      "Not a Love Song": {
+        cover: "/images/cover/skaramushvandangocover/neurocentric.png",
+        picture: "/images/pictures/vandango/skaramush.png",
+        tracks: [
+          { file: "/audio/skaramushvandango/neurocentric/notalovesong_grungemix.m4a", title: "Not a Love Song (Grunge Mix)" },
+          { file: "/audio/skaramushvandango/neurocentric/notalovesong_lumpemix.m4a", title: "Not a Love Song (Lumpe Mix)" },
+        ],
+      },
+      "Raus bist Du": {
+        cover: "/images/cover/skaramushvandangocover/neurocentric.png",
+        picture: "/images/pictures/vandango/skaramush.png",
+        tracks: [
+          { file: "/audio/skaramushvandango/neurocentric/rausbistdu_main.m4a", title: "Raus bist Du (Main)" },
+          { file: "/audio/skaramushvandango/neurocentric/rausbistdu_menemistemix.m4a", title: "Raus bist Du (Menemiste Mix)" },
+        ],
+      },
+      "System Failure": {
+        cover: "/images/cover/skaramushvandangocover/neurocentric.png",
+        picture: "/images/pictures/vandango/skaramush.png",
+        tracks: [
+          { file: "/audio/skaramushvandango/neurocentric/systemfailure_main.m4a", title: "System Failure (Main)" },
+          { file: "/audio/skaramushvandango/neurocentric/systemfailure_inyafaze.m4a", title: "System Failure (InYaFaze Mix)" },
+          { file: "/audio/skaramushvandango/neurocentric/systemfailure_kortanamix.m4a", title: "System Failure (Kortana Mix)" },
+        ],
+      },
+    },
+  },
 ];
-
-export const mockReleases: Release[] = mockArtists.flatMap(a => a.releases);
