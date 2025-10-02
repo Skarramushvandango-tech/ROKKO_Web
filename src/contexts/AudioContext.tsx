@@ -1,103 +1,38 @@
-import React, { createContext, useContext, useState, useRef, useEffect } from 'react';
+// src/components/WelcomeSection.tsx
+import { useEffect, useState } from "react";
+import { asset } from "../utils/asset";
 
-interface Song {
-  id: string;
-  title: string;
-  audioUrl: string;
-  duration: string;
-}
-
-interface AudioContextType {
-  currentTrack: Song | null;
-  isPlaying: boolean;
-  playTrack: (song: Song) => void;
-  pauseTrack: () => void;
-  stopTrack: () => void;
-}
-
-const AudioContext = createContext<AudioContextType | undefined>(undefined);
-
-export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [currentTrack, setCurrentTrack] = useState<Song | null>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
+export default function WelcomeSection() {
+  const [html, setHtml] = useState<string>("");
 
   useEffect(() => {
-    audioRef.current = new Audio();
-    
-    const audio = audioRef.current;
-    
-    const handleEnded = () => {
-      setIsPlaying(false);
-    };
-
-    const handleCanPlay = () => {
-      if (currentTrack && isPlaying) {
-        audio.play().catch(console.error);
-      }
-    };
-
-    audio.addEventListener('ended', handleEnded);
-    audio.addEventListener('canplay', handleCanPlay);
-
-    return () => {
-      audio.removeEventListener('ended', handleEnded);
-      audio.removeEventListener('canplay', handleCanPlay);
-      audio.pause();
-    };
+    fetch(asset("/data/bios.html"))
+      .then((r) => r.text())
+      .then((txt) => {
+        const doc = new DOMParser().parseFromString(txt, "text/html");
+        const el = doc.getElementById("welcome") || doc.querySelector('[data-artist="welcome"]');
+        setHtml(el?.innerHTML || "");
+      })
+      .catch(() => setHtml(""));
   }, []);
 
-  const playTrack = (song: Song) => {
-    if (audioRef.current) {
-      // If switching to a different track, stop current and load new
-      if (currentTrack?.id !== song.id) {
-        audioRef.current.pause();
-        audioRef.current.src = song.audioUrl || ''; // In real app, this would be the actual audio URL
-        setCurrentTrack(song);
-      }
-      
-      audioRef.current.play().then(() => {
-        setIsPlaying(true);
-      }).catch((error) => {
-        console.error('Error playing audio:', error);
-        // For demo purposes, we'll still show as playing
-        setIsPlaying(true);
-      });
-    }
-  };
-
-  const pauseTrack = () => {
-    if (audioRef.current) {
-      audioRef.current.pause();
-      setIsPlaying(false);
-    }
-  };
-
-  const stopTrack = () => {
-    if (audioRef.current) {
-      audioRef.current.pause();
-      audioRef.current.currentTime = 0;
-      setIsPlaying(false);
-    }
-  };
-
   return (
-    <AudioContext.Provider value={{
-      currentTrack,
-      isPlaying,
-      playTrack,
-      pauseTrack,
-      stopTrack
-    }}>
-      {children}
-    </AudioContext.Provider>
+    <section className="mx-auto max-w-5xl px-4 py-6 text-center">
+      {html ? (
+        <article
+          className="prose prose-invert mx-auto text-lg leading-relaxed"
+          dangerouslySetInnerHTML={{ __html: html }}
+        />
+      ) : (
+        <>
+          <h1 className="text-3xl font-bold mb-3 text-yellow-400">
+            Willkommen bei ROKKO! Records
+          </h1>
+          <p className="text-zinc-300 text-lg">
+            Musiklabel aus dem Ruhrpott – Releases, Artists, Stories.
+          </p>
+        </>
+      )}
+    </section>
   );
-};
-
-export const useAudio = () => {
-  const context = useContext(AudioContext);
-  if (context === undefined) {
-    throw new Error('useAudio must be used within an AudioProvider');
-  }
-  return context;
-};
+}
