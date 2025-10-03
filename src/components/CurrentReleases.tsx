@@ -1,32 +1,40 @@
 // src/components/CurrentReleases.tsx
 import React, { useRef, useState } from "react";
-import data from "../data/artists.json";
 import { asset } from "../utils/asset";
 
 type Track = { file: string; title: string };
-type Release = { name: string; cover: string; thumbnail?: string; tracks: Track[] };
-type Artist = { name: string; image: string; releases: Release[] };
+type Release = { [key: string]: { cover: string; thumbnail: string; picture: string; tracks: Track[] } };
+type Artist = { name: string; image: string; releases: Release };
 
 function pauseAllExcept(current?: HTMLAudioElement | null) {
   const nodes = document.querySelectorAll<HTMLAudioElement>("audio");
   nodes.forEach((a) => { if (a !== current && !a.paused) a.pause(); });
 }
 
-export default function CurrentReleases() {
+type Props = {
+  allArtists: Artist[];
+  onOpenArtist: (artistName: string) => void;
+};
+
+export default function CurrentReleases({ allArtists, onOpenArtist }: Props) {
   const playerRefs = useRef<Record<string, HTMLAudioElement | null>>({});
-  const artists: Artist[] = ((data as any).items || []) as Artist[];
   const [openKey, setOpenKey] = useState<string | null>(null);
 
-  const cards = artists.flatMap((a) =>
-    (a.releases || []).map((r) => ({ artist: a.name, release: r }))
-  );
+  const cards = allArtists.flatMap((a) => {
+    if (!a.releases) return [];
+    return Object.entries(a.releases).map(([releaseName, releaseData]) => ({ 
+      artist: a.name, 
+      releaseName, 
+      release: releaseData 
+    }));
+  });
 
   return (
     <section className="mx-auto max-w-5xl px-4 py-6 text-[color:var(--text)]">
       <h2 className="text-2xl font-bold mb-4">Aktuelle Releases</h2>
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {cards.map(({ artist, release }, i) => {
-          const key = `${artist}-${release.name}-${i}`;
+        {cards.map(({ artist, releaseName, release }, i) => {
+          const key = `${artist}-${releaseName}-${i}`;
           const isOpen = openKey === key;
           return (
             <article key={key} className="rounded-lg border border-white/10 bg-black/20 p-3">
@@ -34,19 +42,21 @@ export default function CurrentReleases() {
                 onClick={() => setOpenKey(isOpen ? null : key)}
                 className="w-full text-left"
                 aria-expanded={isOpen}
-                title={`${artist} – ${release.name}`}
+                title={`${artist} – ${releaseName}`}
               >
                 <div className="aspect-square overflow-hidden rounded-md border border-white/10 bg-black/20">
                   <img
                     src={asset(release.thumbnail || release.cover)}
-                    alt={`${artist} – ${release.name} (Thumbnail)`}
+                    alt={`${artist} – ${releaseName} (Thumbnail)`}
                     className="h-full w-full object-cover"
                     loading="lazy"
                   />
                 </div>
                 <header className="mt-3">
-                  <div className="opacity-80 text-sm">{artist}</div>
-                  <h3 className="text-base font-semibold">{release.name}</h3>
+                  <div className="opacity-80 text-sm cursor-pointer hover:underline" onClick={(e) => { e.stopPropagation(); onOpenArtist(artist); }}>
+                    {artist}
+                  </div>
+                  <h3 className="text-base font-semibold">{releaseName}</h3>
                 </header>
               </button>
 
@@ -54,7 +64,7 @@ export default function CurrentReleases() {
                 <div className="mt-3 rounded-md border border-white/10 bg-black/30 p-3">
                   <img
                     src={asset(release.cover)}
-                    alt={`${artist} – ${release.name} (Cover)`}
+                    alt={`${artist} – ${releaseName} (Cover)`}
                     className="w-full h-auto rounded"
                   />
                   <ul className="mt-3 space-y-2">
