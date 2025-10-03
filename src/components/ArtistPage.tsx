@@ -1,11 +1,12 @@
 // src/components/ArtistPage.tsx
 import { useEffect, useMemo, useRef, useState } from "react";
-import data from "../data/artists.json";
 import { asset } from "../utils/asset";
 
 type Track = { file: string; title: string };
 type Release = { name: string; cover: string; thumbnail?: string; picture?: string; tracks: Track[] };
-type Artist = { name: string; image: string; releases: Release[] };
+type ArtistFromMockData = { name: string; image: string; releases: { [key: string]: Release } };
+type ArtistFromJSON = { name: string; image: string; releases: Release[] };
+type Artist = ArtistFromMockData | ArtistFromJSON;
 
 function pauseAllExcept(current?: HTMLAudioElement | null) {
   const nodes = document.querySelectorAll<HTMLAudioElement>("audio");
@@ -13,11 +14,18 @@ function pauseAllExcept(current?: HTMLAudioElement | null) {
 }
 const slugify = (s: string) => s.toLowerCase().replace(/\s+/g, "").replace(/[^\w-]/g, "");
 
-export default function ArtistPage({ artistSlug }: { artistSlug: string }) {
-  const artists: Artist[] = ((data as any).items || []) as Artist[];
+// Helper to normalize releases to array format
+function normalizeReleases(releases: { [key: string]: Release } | Release[]): Release[] {
+  if (Array.isArray(releases)) {
+    return releases;
+  }
+  return Object.entries(releases).map(([name, rel]) => ({ ...rel, name }));
+}
+
+export default function ArtistPage({ allArtists, artistKey }: { allArtists: Artist[]; artistKey: string }) {
   const artist = useMemo(
-    () => artists.find((a) => slugify(a.name) === artistSlug) || null,
-    [artists, artistSlug]
+    () => allArtists.find((a) => slugify(a.name) === artistKey) || null,
+    [allArtists, artistKey]
   );
 
   const [open, setOpen] = useState<string | null>(null);
@@ -65,7 +73,7 @@ export default function ArtistPage({ artistSlug }: { artistSlug: string }) {
       )}
 
       <div className="grid gap-6 sm:grid-cols-2">
-        {(artist.releases || []).map((rel) => {
+        {normalizeReleases(artist.releases).map((rel) => {
           const isOpen = open === rel.name;
           return (
             <article key={rel.name} className="rounded border border-white/10 bg-black/20 p-3">

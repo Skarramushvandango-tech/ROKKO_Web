@@ -1,24 +1,35 @@
 // src/components/CurrentReleases.tsx
 import React, { useRef, useState } from "react";
-import data from "../data/artists.json";
 import { asset } from "../utils/asset";
 
 type Track = { file: string; title: string };
 type Release = { name: string; cover: string; thumbnail?: string; tracks: Track[] };
-type Artist = { name: string; image: string; releases: Release[] };
+type ArtistFromMockData = { name: string; image: string; releases: { [key: string]: Release } };
+type ArtistFromJSON = { name: string; image: string; releases: Release[] };
+type Artist = ArtistFromMockData | ArtistFromJSON;
 
 function pauseAllExcept(current?: HTMLAudioElement | null) {
   const nodes = document.querySelectorAll<HTMLAudioElement>("audio");
   nodes.forEach((a) => { if (a !== current && !a.paused) a.pause(); });
 }
 
-export default function CurrentReleases() {
+// Helper to normalize releases to array format with names
+function normalizeReleases(artist: Artist): Array<{ name: string; release: Release }> {
+  if (Array.isArray(artist.releases)) {
+    return artist.releases.map(r => ({ name: r.name, release: r }));
+  }
+  return Object.entries(artist.releases).map(([name, rel]) => ({ 
+    name, 
+    release: { ...rel, name } 
+  }));
+}
+
+export default function CurrentReleases({ allArtists, onOpenArtist }: { allArtists: Artist[]; onOpenArtist: (name: string) => void }) {
   const playerRefs = useRef<Record<string, HTMLAudioElement | null>>({});
-  const artists: Artist[] = ((data as any).items || []) as Artist[];
   const [openKey, setOpenKey] = useState<string | null>(null);
 
-  const cards = artists.flatMap((a) =>
-    (a.releases || []).map((r) => ({ artist: a.name, release: r }))
+  const cards = allArtists.flatMap((a) =>
+    normalizeReleases(a).map(({ name, release }) => ({ artist: a.name, release }))
   );
 
   return (
